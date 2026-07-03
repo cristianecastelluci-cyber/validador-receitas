@@ -1,29 +1,12 @@
-document.getElementById("receita").onclick=()=>{
-
-alert("Em breve: leitura automática da receita.");
-
+body {
+  background: #e3f2fd;
+  font-family: Arial;
+  text-align: center;
 }
 
-document.getElementById("medicamento").onclick=()=>{
-
-alert("Em breve: consulta dos medicamentos.");
-
-}
-
-document.getElementById("voz").onclick=()=>{
-
-alert("Em breve: assistente por voz.");
-
-}
-
-document.getElementById("libras").onclick=()=>{
-
-alert("Em breve: tradução para Libras.");
-
-}
-
-document.getElementById("sobre").onclick=()=>{
-
-alert("MEDASSIS IA\n\nVersão 1.0");
-
+button {
+  display: block;
+  margin: 10px auto;
+  padding: 20px;
+  font-size: 20px;
 }
