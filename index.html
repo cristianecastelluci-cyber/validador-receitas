@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MEDASSIS IA</title>
+<title>FARMASSIS IA</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
@@ -16,7 +16,10 @@
 
 <main>
 
-<button id="receita">📷 Analisar Receita</button>
+<input type="file" id="upload" accept="image/*">
+<button id="receita">📷 Ler Receita</button>
+
+<p id="resultado"></p>
 <button id="medicamento">💊 Consultar Medicamento</button>
 <button id="voz">🎤 Falar com Assistente</button>
 <button id="libras">🤟 Libras</button>
@@ -28,3 +31,4 @@
 
 </body>
 </html>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
