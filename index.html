@@ -16,9 +16,17 @@
 
 <main>
 
-<input type="file" id="upload" accept="image/*" capture="environment" style="display:none;">
-<button onclick="document.getElementById('upload').click()">📷 Tirar Foto da Receita</button>
+<div style="margin:20px 0;">
 
+<input type="file" id="upload" accept="image/*" capture="environment" style="display:none;">
+
+<button onclick="document.getElementById('upload').click()" id="receita">
+📷 TIRAR FOTO DA RECEITA
+</button>
+
+<p id="resultado"></p>
+
+</div>
 <p id="resultado"></p>
 <button id="medicamento">💊 Consultar Medicamento</button>
 <button id="voz">🎤 Falar com Assistente</button>
