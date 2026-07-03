@@ -1,29 +1,19 @@
-document.getElementById("receita").onclick=()=>{
+document.getElementById("receita").onclick = () => {
+  alert("Em breve: leitura automática da receita.");
+};
 
-alert("Em breve: leitura automática da receita.");
+document.getElementById("medicamento").onclick = () => {
+  alert("Em breve: consulta de medicamentos.");
+};
 
-}
+document.getElementById("voz").onclick = () => {
+  alert("Em breve: assistente por voz.");
+};
 
-document.getElementById("medicamento").onclick=()=>{
+document.getElementById("libras").onclick = () => {
+  alert("Em breve: tradução para Libras.");
+};
 
-alert("Em breve: consulta dos medicamentos.");
-
-}
-
-document.getElementById("voz").onclick=()=>{
-
-alert("Em breve: assistente por voz.");
-
-}
-
-document.getElementById("libras").onclick=()=>{
-
-alert("Em breve: tradução para Libras.");
-
-}
-
-document.getElementById("sobre").onclick=()=>{
-
-alert("MEDASSIS IA\n\nVersão 1.0");
-
-}
+document.getElementById("sobre").onclick = () => {
+  alert("FARMASSIS IA - Versão 1.0");
+};
