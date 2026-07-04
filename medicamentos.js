@@ -137,12 +137,6 @@ const medicamentos = [
         "Amoxacilina",
         "Amoxilina 500mg"
     ]
-}
-
-{
-    nome: "Amoxicilina",
-    forma: "cápsula ou comprimido",
-    dosagem: "500 mg"
 },
 
 {
