@@ -164,6 +164,13 @@ function mostrarUnidades() {
             </div>
         `;
     });
+document.getElementById("libras").onclick = () => {
 
+    alert("🤟 VLibras ativado! Use o botão azul na tela para tradução em Libras.");
+
+    // opcional: abrir automaticamente o widget
+    const btn = document.querySelector('[vw-access-button]');
+    if (btn) btn.click();
+};
     div.innerHTML = html;
 }
