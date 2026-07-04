@@ -17,52 +17,57 @@
 
 <main>
 
-    <div style="margin:20px 0;">
+    <!-- 📷 OCR DA RECEITA -->
+    <section style="margin:20px 0;">
 
         <input type="file" id="upload" accept="image/*" capture="environment" style="display:none;">
 
         <button id="btnCamera">📷 TIRAR FOTO DA RECEITA</button>
 
-        <p id="resultadoTexto"></p>
+        <p id="resultado"></p>
 
-    </div>
+    </section>
 
-    <button id="medicamento">💊 Consultar Medicamento</button>
-    <button id="voz">🎤 Falar com Assistente</button>
-    <button id="libras">🤟 Libras</button>
-    <button id="sobre">ℹ️ Sobre</button>
-
-    <button onclick="mostrarUnidades()">
-        Ver unidades do SUS
-    </button>
-
-    <div id="listaUnidades"></div>
-
-    <div style="margin-top:20px;">
+    <!-- 💊 MEDICAMENTOS -->
+    <section style="margin:20px 0;">
 
         <h3>💊 Consultar Medicamento</h3>
 
-        <input type="text" id="inputMedicamento" placeholder="Digite o nome do medicamento" />
+        <input type="text" id="inputMedicamento" placeholder="Digite o nome do medicamento">
 
-        <button onclick="consultarMedicamento()">
-            🔍 Buscar
-        </button>
+        <button onclick="consultarMedicamento()">🔍 Buscar</button>
+        <button onclick="falarMedicamento()">🎤 Falar</button>
 
-        <button onclick="falarMedicamento()">
-            🎤 Falar
-        </button>
+        <div id="resultadoMedicamento"></div>
 
-    </div>
+    </section>
 
-    <div id="resultadoMedicamento"></div>
+    <!-- 🏥 UNIDADES -->
+    <section style="margin:20px 0;">
+
+        <button onclick="mostrarUnidades()">🏥 Ver unidades do SUS</button>
+
+        <div id="listaUnidades"></div>
+
+    </section>
+
+    <!-- ⚙️ OUTROS BOTÕES -->
+    <section style="margin:20px 0;">
+
+        <button id="voz">🎤 Falar com Assistente</button>
+        <button id="libras">🤟 Libras</button>
+        <button id="sobre">ℹ️ Sobre</button>
+
+    </section>
 
 </main>
 
-<!-- LIB OCR -->
+<!-- OCR -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <!-- DADOS -->
 <script src="unidadesDispensadoras.js"></script>
+<script src="medicamentos.js"></script>
 
 <!-- LÓGICA -->
 <script src="app.js"></script>
