@@ -8,7 +8,13 @@ function gerarBase(nome) {
         .split(",")[0]
         .split(" ")[0]
         .trim();
-}
+},
+
+const medicamentosComBase = medicamentos.map(m => ({
+    ...m,
+    base: gerarBase(m.nome)
+}));
+
 const medicamentos = [
 
 {
