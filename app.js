@@ -100,20 +100,51 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     function buscar(textoOCR) {
 
-        const t = normalizar(textoOCR);
-        const lista = window.medicamentos || [];
+    const t = normalizar(textoOCR);
+    const lista = window.medicamentos || [];
 
-        const encontrados = [];
-        const usados = new Set();
+    const encontrados = [];
+    const usados = new Set();
 
-        for (const m of lista) {
+    for (const m of lista) {
 
-            const nome = normalizar(m.nome);
+        const nome = normalizar(m.nome);
 
-            let ok =
-                t.includes(nome) ||
-                nome.includes(t) ||
-                t.includes(nome.split(" ")[0]);
+        // MATCH MAIS INTELIGENTE (profissional)
+        let ok = false;
+
+        // 1. nome principal
+        if (t.includes(nome) || nome.includes(t)) {
+            ok = true;
+        }
+
+        // 2. pega primeira palavra (melhor para OCR)
+        const primeiraPalavra = nome.split(" ")[0];
+        if (t.includes(primeiraPalavra)) {
+            ok = true;
+        }
+
+        // 3. sinônimos (melhorado)
+        if (!ok && m.sinonimos) {
+            ok = m.sinonimos.some(s =>
+                t.includes(normalizar(s)) ||
+                normalizar(s).includes(t)
+            );
+        }
+
+        if (ok) {
+
+            const k = nome.split(" ")[0]; // mais confiável que chave()
+            
+            if (!usados.has(k)) {
+                usados.add(k);
+                encontrados.push(m);
+            }
+        }
+    }
+
+    return encontrados;
+}
 
             // ==========================
             // SINÔNIMOS
