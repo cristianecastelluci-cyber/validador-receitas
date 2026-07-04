@@ -1,0 +1,23 @@
+const unidadesDispensadoras = [
+  {
+    nome: "Unidade Dispensadora de Medicamentos - Sudoeste",
+    endereco: "Rua Pedro Álvares Cabral, 444",
+    telefone: "(18) 3321-3722",
+    regiao: "Sudoeste",
+    componente: "BÁSICO DA ASSISTÊNCIA FARMACÊUTICA"
+  },
+  {
+    nome: "Unidade Dispensadora de Medicamentos - Noroeste",
+    endereco: "Av. Paschoal Santilli, 1898",
+    telefone: "(18) 3321-5405",
+    regiao: "Noroeste",
+    componente: "BÁSICO DA ASSISTÊNCIA FARMACÊUTICA"
+  },
+  {
+    nome: "Unidade Dispensadora de Medicamentos - CAF",
+    endereco: "Rua Maestro Augusto Mathias, 125",
+    telefone: "(18) 3324-3585 / (18) 3323-2918",
+    regiao: "Central",
+    componente: "BÁSICO DA ASSISTÊNCIA FARMACÊUTICA"
+  }
+];
