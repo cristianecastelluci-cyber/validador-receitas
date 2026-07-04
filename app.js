@@ -17,17 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // CHAVE ÚNICA (PROFISSIONAL)
-    // ==========================
-    function chaveUnica(m) {
-        return (
-            normalizar(m.nome) + "|" +
-            normalizar(m.forma || "") + "|" +
-            normalizar(m.dosagem || "")
-        );
-    }
-
-    // ==========================
     // BOTÃO CÂMERA
     // ==========================
     const btnCamera = document.getElementById("btnCamera");
@@ -97,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // BUSCA INTELIGENTE (OCR FRIENDLY)
+    // BUSCA INTELIGENTE (CORRIGIDA)
     // ==========================
     function buscar(textoOCR) {
 
@@ -111,20 +100,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const nome = normalizar(m.nome);
 
-            let ok = false;
+            let ok =
+                t.includes(nome) ||
+                nome.includes(t) ||
+                t.includes(nome.split(" ")[0]);
 
-            // 1. match direto
-            if (t.includes(nome) || nome.includes(t)) {
-                ok = true;
-            }
-
-            // 2. primeira palavra (melhora OCR)
-            const primeira = nome.split(" ")[0];
-            if (t.includes(primeira)) {
-                ok = true;
-            }
-
-            // 3. sinônimos
+            // sinônimos
             if (!ok && m.sinonimos) {
                 ok = m.sinonimos.some(s =>
                     t.includes(normalizar(s))
@@ -133,10 +114,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (ok) {
 
-                const k = chaveUnica(m);
+                // 🔥 CHAVE REAL (evita duplicata corretamente)
+                const chave = normalizar(m.nome + m.forma + m.dosagem);
 
-                if (!usados.has(k)) {
-                    usados.add(k);
+                if (!usados.has(chave)) {
+                    usados.add(chave);
                     encontrados.push(m);
                 }
             }
@@ -155,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // PROCESSAMENTO PRINCIPAL
+    // PROCESSAMENTO
     // ==========================
     function processar(textoOCR) {
 
