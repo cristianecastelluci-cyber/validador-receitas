@@ -22,17 +22,33 @@ window.falar = function (texto) {
 // ==========================================================
 // 3. LÓGICA DE BUSCA E PROCESSAMENTO (Globais)
 // ==========================================================
-function buscar(textoOCR) {
+window.buscar = function(textoOCR) {
     const t = normalizar(textoOCR);
-    return (window.medicamentos || []).filter(m => {
+    const lista = window.medicamentos || [];
+    
+    // Filtramos apenas medicamentos que possuem alguma palavra-chave presente no texto da receita
+    return lista.filter(m => {
         const nome = normalizar(m.nome);
-        const base = nome.split(" ")[0];
-        let ok = t.includes(nome) || t.includes(base);
-        if (!ok && m.sinonimos) ok = m.sinonimos.some(s => t.includes(normalizar(s)));
-        return ok;
-    });
-}
+        const partesDoNome = nome.split(" "); // Ex: ['paracetamol', '500mg']
+        
+        // Verifica se pelo menos a primeira parte do nome do medicamento está no texto
+        const base = partesDoNome[0];
+        
+        // A busca é positiva se:
+        // 1. O texto contém o nome completo
+        // 2. OU o texto contém a base (a primeira palavra)
+        // 3. OU (opcional) algum sinônimo
+        const encontrouNome = t.includes(nome) || t.includes(base);
+        
+        // Verifica sinonimos caso existam
+        let encontrouSinonimo = false;
+        if (m.sinonimos) {
+            encontrouSinonimo = m.sinonimos.some(s => t.includes(normalizar(s)));
+        }
 
+        return encontrouNome || encontrouSinonimo;
+    });
+};
 window.processar = function(textoOCR) {
     const div = document.getElementById("resultadoMedicamento");
     if (!div) return;
