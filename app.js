@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // FALA GLOBAL (TTS ESTÁVEL)
+    // FALA GLOBAL (TTS)
     // ==========================
     window.falar = function (texto) {
         if (!texto) return;
@@ -58,8 +58,6 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             iniciar();
         }
-
-        utterance.onerror = (e) => console.error("Erro voz:", e);
     };
 
     // ==========================
@@ -131,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // BUSCA INTELIGENTE (FINAL CORRIGIDA)
+    // BUSCA INTELIGENTE
     // ==========================
     function buscar(textoOCR) {
 
@@ -160,140 +158,143 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
             }
 
-            if (ok) {
-                encontrados.push(m);
-            }
+            if (ok) encontrados.push(m);
         }
 
         return encontrados;
     }
 
     // ==========================
-    // PROCESSAMENTO
+    // PROCESSAMENTO (CORRIGIDO)
     // ==========================
-   function processar(textoOCR) {
+    function processar(textoOCR) {
 
-    const div = document.getElementById("resultadoMedicamento");
-    if (!div) return;
+        const div = document.getElementById("resultadoMedicamento");
+        if (!div) return;
 
-    const encontrados = buscar(textoOCR);
-
-    if (encontrados.length === 0) {
-      div.innerHTML = `
-    <div style="
-        padding:12px;
-        margin:10px 0;
-        border-radius:10px;
-        border:1px solid #f5c2c2;
-        background:#ffe5e5;
-        color:#b00020;
-        font-weight:bold;
-        display:flex;
-        align-items:center;
-        gap:8px;
-        font-size:16px;
-    ">
-        👎 Nenhum medicamento identificado na rede municipal.
-    </div>
-`;
-    div.innerHTML = "💊 <h3>Medicamentos encontrados</h3>";
-
-    for (const m of encontrados) {
-
-        const textoFala = `${m.nome} ${m.dosagem || ""}. Disponível no SUS.`;
+        const encontrados = buscar(textoOCR);
 
         // ==========================
-        // STATUS VISUAL (EMOJIS)
+        // NENHUM RESULTADO
         // ==========================
-        let statusIcon = "👍";
-        let statusLabel = "Disponível no SUS";
-        let statusColor = "green";
-
-        if (m.status === "indisponivel") {
-            statusIcon = "👎";
-            statusLabel = "Indisponível";
-            statusColor = "red";
-        }
-
-        if (m.status === "estoque_baixo") {
-            statusIcon = "⚠️";
-            statusLabel = "Estoque baixo";
-            statusColor = "orange";
-        }
-
-        div.innerHTML += `
-            <div style="
-                padding:12px;
-                margin:10px 0;
-                border-radius:10px;
-                border:1px solid #ddd;
-                background:#fafafa;
-            ">
-
-                <!-- TÍTULO -->
-                <div style="font-size:18px;font-weight:bold;">
-                    💊 ${m.nome}
-                </div>
-
-                <!-- DETALHES -->
-                <div style="margin-top:5px;">
-                    📦 ${m.forma || "—"}<br>
-                    ⚖️ ${m.dosagem || "—"}
-                </div>
-
-                <!-- STATUS -->
+        if (!encontrados || encontrados.length === 0) {
+            div.innerHTML = `
                 <div style="
-                    margin-top:10px;
+                    padding:12px;
+                    margin:10px 0;
+                    border-radius:10px;
+                    border:1px solid #f5c2c2;
+                    background:#ffe5e5;
+                    color:#b00020;
                     font-weight:bold;
-                    color:${statusColor};
-                    font-size:15px;
+                    display:flex;
+                    align-items:center;
+                    gap:8px;
+                    font-size:16px;
                 ">
-                    ${statusIcon} ${statusLabel}
+                    👎 Nenhum medicamento identificado na rede municipal.
                 </div>
+            `;
+            return;
+        }
 
-                <!-- AÇÕES -->
-                <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+        // ==========================
+        // RESULTADOS
+        // ==========================
+        let html = "💊 <h3>Medicamentos encontrados</h3>";
 
-                    <a href="https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponiveis/"
-                       target="_blank"
-                       style="
-                           padding:6px 10px;
-                           background:#1976d2;
-                           color:white;
-                           border-radius:6px;
-                           text-decoration:none;
-                       ">
-                        📍 Estoque
-                    </a>
+        for (const m of encontrados) {
 
-                    <button class="btn-ouvir"
-                        data-text='${JSON.stringify(textoFala)}'
-                        style="
-                            padding:6px 10px;
-                            border-radius:6px;
-                            border:none;
-                            background:#4caf50;
-                            color:white;
-                            cursor:pointer;
-                        ">
-                        🔊 Ouvir
-                    </button>
+            const textoFala = `${m.nome} ${m.dosagem || ""}. Disponível no SUS.`;
+
+            let statusIcon = "👍";
+            let statusLabel = "Disponível no SUS";
+            let statusColor = "green";
+
+            const status = (m.status || "").toLowerCase();
+
+            if (status === "indisponivel") {
+                statusIcon = "👎";
+                statusLabel = "Indisponível";
+                statusColor = "red";
+            }
+            else if (status === "estoque_baixo") {
+                statusIcon = "⚠️";
+                statusLabel = "Estoque baixo";
+                statusColor = "orange";
+            }
+
+            html += `
+                <div style="
+                    padding:12px;
+                    margin:10px 0;
+                    border-radius:10px;
+                    border:1px solid #ddd;
+                    background:#fafafa;
+                ">
+
+                    <div style="font-size:18px;font-weight:bold;">
+                        💊 ${m.nome || "—"}
+                    </div>
+
+                    <div style="margin-top:5px;">
+                        📦 ${m.forma || "—"}<br>
+                        ⚖️ ${m.dosagem || "—"}
+                    </div>
+
+                    <div style="
+                        margin-top:10px;
+                        font-weight:bold;
+                        color:${statusColor};
+                        font-size:15px;
+                    ">
+                        ${statusIcon} ${statusLabel}
+                    </div>
+
+                    <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+
+                        <a href="https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponiveis/"
+                           target="_blank"
+                           style="
+                               padding:6px 10px;
+                               background:#1976d2;
+                               color:white;
+                               border-radius:6px;
+                               text-decoration:none;
+                           ">
+                            📍 Estoque
+                        </a>
+
+                        <button class="btn-ouvir"
+                            data-text="${encodeURIComponent(textoFala)}"
+                            style="
+                                padding:6px 10px;
+                                border-radius:6px;
+                                border:none;
+                                background:#4caf50;
+                                color:white;
+                                cursor:pointer;
+                            ">
+                            🔊 Ouvir
+                        </button>
+
+                    </div>
 
                 </div>
+            `;
+        }
 
-            </div>
-        `;
+        div.innerHTML = html;
     }
-}
 
     // ==========================
-    // BOTÃO OUVIR (ROBUSTO)
+    // BOTÃO OUVIR
     // ==========================
     document.addEventListener("click", function (e) {
         const btn = e.target.closest(".btn-ouvir");
         if (!btn) return;
 
-        const texto = JSON.parse(btn.dataset.text);
+        const texto = decodeURIComponent(btn.dataset.text);
         window.falar(texto);
     });
 
