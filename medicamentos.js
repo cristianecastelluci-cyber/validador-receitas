@@ -128,10 +128,16 @@ const medicamentos = [
 },
 
 {
-    nome: "Amoxicilina + clavulanato de potássio",
-    forma: "comprimido",
-    dosagem: "500 mg + 125 mg"
-},
+    nome: "Amoxicilina",
+    forma: "cápsula",
+    dosagem: "500 mg",
+    sinonimos: [
+        "Amoxicilina",
+        "Amoxilina",
+        "Amoxacilina",
+        "Amoxilina 500mg"
+    ]
+}
 
 {
     nome: "Amoxicilina",
