@@ -1,4 +1,4 @@
-const unidadesDispensadoras = [
+window.unidadesDispensadoras = [
   {
     nome: "Unidade Dispensadora de Medicamentos - Sudoeste",
     endereco: "Rua Pedro Álvares Cabral, 444",
