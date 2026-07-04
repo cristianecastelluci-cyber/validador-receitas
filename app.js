@@ -121,6 +121,42 @@ function buscarMedicamentos(textoOCR) {
     });
 }
 
+    function corrigirMedicamento(texto, lista) {
+
+    const t = normalizar(texto);
+
+    let melhorMatch = null;
+    let melhorScore = 0;
+
+    lista.forEach(m => {
+
+        const nome = normalizar(m.nome);
+
+        // score base: semelhança simples por inclusão
+        let score = 0;
+
+        if (nome.includes(t) || t.includes(nome)) {
+            score += 5;
+        }
+
+        // comparação por palavras
+        const palavras = t.split(" ");
+
+        palavras.forEach(p => {
+            if (p.length > 3 && nome.includes(p)) {
+                score += 2;
+            }
+        });
+
+        if (score > melhorScore) {
+            melhorScore = score;
+            melhorMatch = m;
+        }
+    });
+
+    // só retorna se tiver confiança mínima
+    return melhorScore >= 3 ? melhorMatch : null;
+}
 
 // ==========================
 // CONSULTA MANUAL
