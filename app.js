@@ -1,3 +1,6 @@
+speechSynthesis.onvoiceschanged = () => {
+    console.log("Vozes carregadas:", speechSynthesis.getVoices());
+};
 // ==========================
 // SEGURANÇA GLOBAL
 // ==========================
