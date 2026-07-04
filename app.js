@@ -353,31 +353,94 @@ function processar(textoOCR) {
         processar(input.value);
     };
 
-    // ==========================
-    // UNIDADES SUS
-    // ==========================
-    window.mostrarUnidades = function () {
+   // ==========================
+// UNIDADES DISPENSADORAS DE MEDICAMENTOS
+// ==========================
+window.mostrarUnidades = function () {
 
-        const div = document.getElementById("listaUnidades");
-        if (!div) return;
+    const div = document.getElementById("listaUnidades");
+    if (!div) return;
 
-        let html = "<h3>🏥 Unidades do SUS em Assis-SP</h3>";
+    let html = `
+        <h3 style="
+            color:#1565c0;
+            text-align:center;
+            margin-bottom:20px;
+            font-size:24px;
+        ">
+            💊 Unidades Dispensadoras de Medicamentos de Assis-SP
+        </h3>
+    `;
 
-        const lista = window.unidadesDispensadoras || [];
+    const lista = window.unidadesDispensadoras || [];
 
-        for (const u of lista) {
-            html += `
-                <div style="margin-bottom:10px;padding:10px;border:1px solid #ccc;">
-                    📍 <b>${u.nome}</b><br>
-                    🏠 ${u.endereco}<br>
-                    📞 ${u.telefone || ""}<br>
-                    🌍 ${u.regiao || ""}<br>
-                    💊 ${u.componente || ""}
+    if (lista.length === 0) {
+        div.innerHTML = `
+            <div style="
+                background:#ffebee;
+                border-left:6px solid #d32f2f;
+                padding:15px;
+                border-radius:10px;
+                color:#c62828;
+                font-weight:bold;
+                text-align:center;
+            ">
+                😞 Nenhuma unidade cadastrada.
+            </div>
+        `;
+        return;
+    }
+
+    for (const u of lista) {
+
+        html += `
+            <div style="
+                background:#ffffff;
+                border:1px solid #dcdcdc;
+                border-left:6px solid #1976d2;
+                border-radius:12px;
+                padding:15px;
+                margin-bottom:15px;
+                box-shadow:0 2px 6px rgba(0,0,0,.08);
+            ">
+
+                <div style="
+                    font-size:20px;
+                    font-weight:bold;
+                    color:#1565c0;
+                    margin-bottom:12px;
+                ">
+                    🏥 ${u.nome}
                 </div>
-            `;
-        }
 
-        div.innerHTML = html;
-    };
+                <div style="margin-bottom:8px;">
+                    📍 <b>Endereço:</b><br>
+                    ${u.endereco}
+                </div>
 
-});
+                <div style="margin-bottom:8px;">
+                    📞 <b>Telefone:</b><br>
+                    ${u.telefone || "Não informado"}
+                </div>
+
+                <div style="margin-bottom:8px;">
+                    🌎 <b>Região:</b><br>
+                    ${u.regiao || "-"}
+                </div>
+
+                <div style="
+                    background:#e8f5e9;
+                    padding:10px;
+                    border-radius:8px;
+                    color:#1b5e20;
+                    font-weight:bold;
+                ">
+                    💊 ${u.componente || "-"}
+                </div>
+
+            </div>
+        `;
+    }
+
+    div.innerHTML = html;
+};
