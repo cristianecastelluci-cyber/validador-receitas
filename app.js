@@ -179,9 +179,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const encontrados = buscar(textoOCR);
 
     if (encontrados.length === 0) {
-        div.innerHTML = "❌ Nenhum medicamento identificado na rede municipal.";
-        return;
-    }
+        div.innerHTML = `
+    <div style="
+        color: red;
+        font-weight: bold;
+        font-size: 16px;
+        margin-top: 10px;
+    ">
+        👎 Nenhum medicamento identificado na rede municipal.
+    </div>
+`;
 
     div.innerHTML = "💊 <h3>Medicamentos encontrados</h3>";
 
