@@ -27,3 +27,20 @@ document.getElementById("upload").onchange = async (event) => {
 
     reader.readAsDataURL(file);
 };
+function mostrarUnidades() {
+
+    let html = "<hr><h3>🏥 Unidades de Dispensação em Assis-SP</h3>";
+
+    unidadesDispensadoras.forEach(u => {
+        html += `
+            <div style="margin-bottom:10px; padding:10px; border:1px solid #ccc;">
+                📍 <b>${u.nome}</b><br>
+                🏠 ${u.endereco}<br>
+                📞 ${u.telefone}<br>
+                🌍 Região: ${u.regiao}
+            </div>
+        `;
+    });
+
+    document.getElementById("resultado").innerHTML = html;
+}
