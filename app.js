@@ -136,43 +136,54 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     // BUSCA INTELIGENTE
     // ==========================
-    function buscar(textoOCR) {
+   function buscar(textoOCR) {
 
-        const t = normalizar(textoOCR);
-        const lista = window.medicamentos || [];
+    const t = normalizar(textoOCR);
+    const lista = window.medicamentos || [];
 
-        const encontrados = [];
-        const usados = new Set();
+    const encontrados = [];
 
-        for (const m of lista) {
+    for (const m of lista) {
 
-            const nome = normalizar(m.nome);
+        const nome = normalizar(m.nome);
+        const forma = normalizar(m.forma || "");
+        const dosagem = normalizar(m.dosagem || "");
 
-            let ok =
-                t.includes(nome) ||
-                nome.includes(t) ||
-                t.includes(nome.split(" ")[0]);
+        // ==========================
+        // MATCH FORTE (prioridade)
+        // ==========================
+        let ok =
+            t.includes(nome) ||
+            (nome && t.includes(nome + " " + dosagem)) ||
+            (nome && t.includes(nome + " " + forma));
 
-            if (!ok && m.sinonimos) {
-                ok = m.sinonimos.some(s =>
-                    t.includes(normalizar(s))
-                );
-            }
+        // ==========================
+        // SINÔNIMOS
+        // ==========================
+        if (!ok && m.sinonimos) {
+            ok = m.sinonimos.some(s =>
+                t.includes(normalizar(s))
+            );
+        }
 
-            if (ok) {
+        // ==========================
+        // FALLBACK OCR FRACO
+        // ==========================
+        if (!ok) {
+            const palavras = nome.split(" ");
 
-                const chave = normalizar(m.nome + m.forma + m.dosagem);
-
-                if (!usados.has(chave)) {
-                    usados.add(chave);
-                    encontrados.push(m);
-                }
+            if (palavras.length > 1) {
+                ok = palavras.some(p => t.includes(p));
             }
         }
 
-        return encontrados;
+        if (ok) {
+            encontrados.push(m);
+        }
     }
 
+    return encontrados;
+}
     // ==========================
     // PROCESSAMENTO PRINCIPAL
     // ==========================
