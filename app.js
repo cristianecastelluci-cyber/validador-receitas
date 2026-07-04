@@ -100,25 +100,39 @@ function buscarMedicamentos(textoOCR) {
 
     const texto = normalizar(textoOCR);
 
-    return medicamentos.filter(m => {
+    let resultados = [];
+
+    medicamentos.forEach(m => {
 
         const nome = normalizar(m.nome);
 
-        // ✔ MATCH FLEXÍVEL (resolve losartana vs losartana potássica)
+        let encontrou = false;
+
+        // ✔ match direto
         if (texto.includes(nome) || nome.includes(texto)) {
-            return true;
+            encontrou = true;
         }
 
-        // ✔ SINÔNIMOS
-        if (m.sinonimos?.some(s => {
-            const sn = normalizar(s);
-            return texto.includes(sn) || sn.includes(texto);
-        })) {
-            return true;
+        // ✔ sinônimos
+        if (!encontrou && m.sinonimos) {
+            encontrou = m.sinonimos.some(s => {
+                const sn = normalizar(s);
+                return texto.includes(sn) || sn.includes(texto);
+            });
         }
 
-        return false;
+        if (encontrou) {
+            resultados.push(m);
+        } else {
+            // ✔ tenta correção automática (OCR ruim)
+            const corrigido = corrigirMedicamento(texto, medicamentos);
+            if (corrigido && !resultados.includes(corrigido)) {
+                resultados.push(corrigido);
+            }
+        }
     });
+
+    return resultados;
 }
 
     function corrigirMedicamento(texto, lista) {
