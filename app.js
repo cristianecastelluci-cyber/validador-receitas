@@ -141,44 +141,48 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     function processar(textoOCR) {
 
-        const div = document.getElementById("resultadoMedicamento");
-        if (!div) return;
+    const div = document.getElementById("resultadoMedicamento");
+    if (!div) return;
 
-        const encontrados = buscar(textoOCR);
+    const encontrados = buscar(textoOCR);
 
-        if (encontrados.length === 0) {
-            const msg = "Nenhum medicamento identificado na rede municipal.";
-            div.innerHTML = msg;
-            falar(msg);
-            return;
-        }
-
-        div.innerHTML = "<h3>💊 Medicamentos encontrados</h3>";
-
-        for (const m of encontrados) {
-
-            const msg = `${m.nome} ${m.dosagem || ""}. Disponível no SUS.`;
-
-            div.innerHTML += `
-                <div style="padding:10px;border-bottom:1px solid #ddd">
-                    <b>${m.nome}</b><br>
-                    ${m.forma || ""} - ${m.dosagem || ""}<br><br>
-
-                    <span style="color:green;font-weight:bold;">
-                        ✔ Disponível no SUS
-                    </span><br>
-
-                    <a href="https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponiveis/"
-                       target="_blank">
-                       Ver estoque oficial
-                    </a>
-                </div>
-            `;
-
-            falar(msg);
-        }
+    if (encontrados.length === 0) {
+        div.innerHTML = "Nenhum medicamento identificado na rede municipal.";
+        return;
     }
 
+    div.innerHTML = "<h3>💊 Medicamentos encontrados</h3>";
+
+    for (const m of encontrados) {
+
+        const textoFala = `${m.nome} ${m.dosagem || ""}. Disponível no SUS.`;
+
+        div.innerHTML += `
+            <div style="padding:10px;border-bottom:1px solid #ddd">
+
+                <b>${m.nome}</b><br>
+                ${m.forma || ""} - ${m.dosagem || ""}<br><br>
+
+                <span style="color:green;font-weight:bold;">
+                    ✔ Disponível no SUS
+                </span><br>
+
+                <a href="https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponiveis/"
+                   target="_blank">
+                   Ver estoque oficial
+                </a>
+
+                <br><br>
+
+                <button onclick="falar('${textoFala.replace(/'/g, "\\'")}')"
+                        style="margin-top:8px;padding:5px 10px;cursor:pointer;">
+                    🔊 Ouvir
+                </button>
+
+            </div>
+        `;
+    }
+}
     // ==========================
     // CONSULTA MANUAL
     // ==========================
