@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // VOZ GLOBAL (CORRIGIDA E ESTÁVEL)
+    // FALA GLOBAL (TTS ESTÁVEL)
     // ==========================
     window.falar = function (texto) {
         if (!texto) return;
@@ -46,9 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 voices.find(v => v.lang.startsWith("pt")) ||
                 voices[0];
 
-            if (vozPT) {
-                utterance.voice = vozPT;
-            }
+            if (vozPT) utterance.voice = vozPT;
 
             speechSynthesis.speak(utterance);
         };
@@ -61,7 +59,6 @@ document.addEventListener("DOMContentLoaded", () => {
             iniciar();
         }
 
-        utterance.onstart = () => console.log("🔊 falando:", texto);
         utterance.onerror = (e) => console.error("Erro voz:", e);
     };
 
@@ -134,58 +131,45 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // BUSCA INTELIGENTE
+    // BUSCA INTELIGENTE (FINAL CORRIGIDA)
     // ==========================
-   function buscar(textoOCR) {
+    function buscar(textoOCR) {
 
-    const t = normalizar(textoOCR);
-    const lista = window.medicamentos || [];
+        const t = normalizar(textoOCR);
+        const lista = window.medicamentos || [];
 
-    const encontrados = [];
+        const encontrados = [];
 
-    for (const m of lista) {
+        for (const m of lista) {
 
-        const nome = normalizar(m.nome);
-        const forma = normalizar(m.forma || "");
-        const dosagem = normalizar(m.dosagem || "");
+            const nome = normalizar(m.nome);
+            const forma = normalizar(m.forma || "");
+            const dosagem = normalizar(m.dosagem || "");
 
-        // ==========================
-        // MATCH FORTE (prioridade)
-        // ==========================
-        let ok =
-            t.includes(nome) ||
-            (nome && t.includes(nome + " " + dosagem)) ||
-            (nome && t.includes(nome + " " + forma));
+            const base = nome.split(" ")[0];
 
-        // ==========================
-        // SINÔNIMOS
-        // ==========================
-        if (!ok && m.sinonimos) {
-            ok = m.sinonimos.some(s =>
-                t.includes(normalizar(s))
-            );
-        }
+            let ok =
+                t.includes(nome) ||
+                t.includes(base) ||
+                (dosagem && t.includes(dosagem)) ||
+                (forma && t.includes(forma));
 
-        // ==========================
-        // FALLBACK OCR FRACO
-        // ==========================
-        if (!ok) {
-            const palavras = nome.split(" ");
+            if (!ok && m.sinonimos) {
+                ok = m.sinonimos.some(s =>
+                    t.includes(normalizar(s))
+                );
+            }
 
-            if (palavras.length > 1) {
-                ok = palavras.some(p => t.includes(p));
+            if (ok) {
+                encontrados.push(m);
             }
         }
 
-        if (ok) {
-            encontrados.push(m);
-        }
+        return encontrados;
     }
 
-    return encontrados;
-}
     // ==========================
-    // PROCESSAMENTO PRINCIPAL
+    // PROCESSAMENTO
     // ==========================
     function processar(textoOCR) {
 
@@ -222,9 +206,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     <br><br>
 
-                    <!-- BOTÃO OUVIR -->
                     <button class="btn-ouvir"
-                        data-text="${textoFala.replace(/"/g, '&quot;')}"
+                        data-text='${JSON.stringify(textoFala)}'
                         style="margin-top:8px;padding:6px 10px;cursor:pointer;border-radius:6px;">
                         🔊 Ouvir
                     </button>
@@ -235,13 +218,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // EVENTO GLOBAL BOTÃO OUVIR
+    // BOTÃO OUVIR (ROBUSTO)
     // ==========================
     document.addEventListener("click", function (e) {
-        if (e.target.classList.contains("btn-ouvir")) {
-            const texto = e.target.dataset.text;
-            window.falar(texto);
-        }
+        const btn = e.target.closest(".btn-ouvir");
+        if (!btn) return;
+
+        const texto = JSON.parse(btn.dataset.text);
+        window.falar(texto);
     });
 
     // ==========================
