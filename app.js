@@ -20,12 +20,31 @@ document.addEventListener("DOMContentLoaded", () => {
     // FALA GLOBAL (TTS)
     // ==========================
     window.falar = function (texto) {
-        if (!texto) return;
+    if (!texto) return;
 
-        const u = new SpeechSynthesisUtterance(texto);
-        u.lang = "pt-BR";
-        speechSynthesis.speak(u);
-    };
+    // 🔇 limpa falas anteriores (evita travar o motor)
+    speechSynthesis.cancel();
+
+    const u = new SpeechSynthesisUtterance(texto);
+
+    u.lang = "pt-BR";
+    u.rate = 1;
+    u.pitch = 1;
+    u.volume = 1;
+
+    // 🔥 força reativação do motor de voz
+    const voices = speechSynthesis.getVoices();
+
+    if (voices.length > 0) {
+        const ptVoice = voices.find(v => v.lang.includes("pt"));
+        if (ptVoice) u.voice = ptVoice;
+    }
+
+    u.onstart = () => console.log("🔊 falando:", texto);
+    u.onerror = (e) => console.error("Erro voz:", e);
+
+    speechSynthesis.speak(u);
+};
 
     // ==========================
     // BOTÃO CÂMERA
