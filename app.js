@@ -1,5 +1,5 @@
 // ==========================
-// DEBUG VOZ
+// DEBUG VOZ (opcional)
 // ==========================
 speechSynthesis.onvoiceschanged = () => {
     console.log("Vozes carregadas:", speechSynthesis.getVoices());
@@ -12,7 +12,7 @@ window.medicamentos = window.medicamentos || [];
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    // ==========================
+    // =========================
     // NORMALIZAÇÃO
     // ==========================
     function normalizar(texto) {
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // FALA GLOBAL
+    // FALA GLOBAL (TTS ESTÁVEL)
     // ==========================
     window.falar = function (texto) {
         if (!texto) return;
@@ -32,10 +32,15 @@ document.addEventListener("DOMContentLoaded", () => {
         speechSynthesis.cancel();
 
         const utterance = new SpeechSynthesisUtterance(texto);
+
         utterance.lang = "pt-BR";
+        utterance.rate = 1;
+        utterance.pitch = 1;
+        utterance.volume = 1;
 
         const iniciar = () => {
             const voices = speechSynthesis.getVoices();
+
             const vozPT =
                 voices.find(v => v.lang === "pt-BR") ||
                 voices.find(v => v.lang.startsWith("pt")) ||
@@ -53,6 +58,8 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             iniciar();
         }
+
+        utterance.onerror = (e) => console.error("Erro voz:", e);
     };
 
     // ==========================
@@ -92,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // VOZ
+    // VOZ (INPUT)
     // ==========================
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -124,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // BUSCA
+    // BUSCA INTELIGENTE (FINAL CORRIGIDA)
     // ==========================
     function buscar(textoOCR) {
 
@@ -138,6 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const nome = normalizar(m.nome);
             const forma = normalizar(m.forma || "");
             const dosagem = normalizar(m.dosagem || "");
+
             const base = nome.split(" ")[0];
 
             let ok =
@@ -147,88 +155,180 @@ document.addEventListener("DOMContentLoaded", () => {
                 (forma && t.includes(forma));
 
             if (!ok && m.sinonimos) {
-                ok = m.sinonimos.some(s => t.includes(normalizar(s)));
+                ok = m.sinonimos.some(s =>
+                    t.includes(normalizar(s))
+                );
             }
 
-            if (ok) encontrados.push(m);
+            if (ok) {
+                encontrados.push(m);
+            }
         }
 
         return encontrados;
     }
 
     // ==========================
-    // PROCESSAMENTO (RECEITA INTELIGENTE)
+    // PROCESSAMENTO
     // ==========================
-    function processar(textoOCR) {
 
-        const div = document.getElementById("resultadoMedicamento");
-        if (!div) return;
+function processar(textoOCR) {
 
-        const linhas = textoOCR
-            .split("\n")
-            .map(l => l.trim())
-            .filter(l => l.length > 0);
+    const div = document.getElementById("resultadoMedicamento");
+    if (!div) return;
 
-        let encontradosTotais = [];
-        let naoEncontrados = [];
+    const encontrados = buscar(textoOCR);
 
-        for (const linha of linhas) {
+    // ==========================
+    // NENHUM MEDICAMENTO ENCONTRADO
+    // ==========================
+    if (encontrados.length === 0) {
 
-            const encontrados = buscar(linha);
+        div.innerHTML = `
+            <div style="
+                margin:15px 0;
+                padding:18px;
+                background:#ffebee;
+                border-left:8px solid #d32f2f;
+                border-radius:10px;
+                text-align:center;
+            ">
 
-            if (encontrados.length > 0) {
-                encontradosTotais.push(...encontrados);
-            } else {
-                naoEncontrados.push(linha);
-            }
-        }
+                <div style="font-size:42px;">
+                    😞 👎
+                </div>
 
-        const unicos = [...new Map(encontradosTotais.map(m => [m.nome, m])).values()];
+                <div style="
+                    color:#c62828;
+                    font-size:20px;
+                    font-weight:bold;
+                    margin-top:10px;
+                ">
+                    Nenhum medicamento identificado na rede municipal.
+                </div>
 
-        let html = `<h3 style="color:#1565c0;">📷 Resultado da Receita</h3>`;
+            </div>
+        `;
 
-        if (unicos.length > 0) {
-
-            html += `<h4 style="color:green;">🟢 Encontrados</h4>`;
-
-            for (const m of unicos) {
-
-                const textoFala =
-                    `${m.nome} ${m.dosagem || ""}. Este medicamento faz parte da relação de medicamentos de Assis-SP.`;
-
-                html += `
-                <div style="background:#e8f5e9;padding:12px;margin:10px 0;border-radius:10px;border-left:6px solid #2e7d32;">
-                    💊 <b>${m.nome}</b><br>
-                    📦 ${m.forma || "-"}<br>
-                    ⚖️ ${m.dosagem || "-"}<br><br>
-
-                    😊👍 Disponível na rede municipal<br><br>
-
-                    <button class="btn-ouvir" data-text='${JSON.stringify(textoFala)}'>
-                        🔊 Ouvir
-                    </button>
-                </div>`;
-            }
-        }
-
-        if (naoEncontrados.length > 0) {
-
-            html += `<h4 style="color:red;">🔴 Não encontrados</h4>`;
-
-            for (const item of naoEncontrados) {
-
-                html += `
-                <div style="background:#ffebee;padding:10px;margin:8px 0;border-left:5px solid red;border-radius:8px;">
-                    😞 ${item}
-                </div>`;
-            }
-        }
-
-        div.innerHTML = html;
+        return;
     }
 
     // ==========================
-    // BOTÃO OUVIR
+    // TÍTULO
+    // ==========================
+    div.innerHTML = `
+        <h3 style="color:#1565c0;">
+            😊 Resultado da consulta
+        </h3>
+    `;
+
+    // ==========================
+    // MEDICAMENTOS
+    // ==========================
+    for (const m of encontrados) {
+
+        const textoFala =
+            `${m.nome} ${m.dosagem || ""}. ` +
+            `Este medicamento faz parte da relação de medicamentos de Assis-SP.`;
+
+        div.innerHTML += `
+
+            <div style="
+                background:#ffffff;
+                border:1px solid #dcdcdc;
+                border-radius:12px;
+                padding:15px;
+                margin-bottom:15px;
+                box-shadow:0 2px 6px rgba(0,0,0,.08);
+            ">
+
+                <!-- Nome -->
+                <div style="
+                    font-size:22px;
+                    font-weight:bold;
+                    color:#0d47a1;
+                ">
+                    💊 ${m.nome}
+                </div>
+
+                <!-- Forma e dosagem -->
+                <div style="
+                    margin-top:8px;
+                    font-size:16px;
+                ">
+                    📦 <b>Forma:</b> ${m.forma || "-"}<br>
+                    ⚖️ <b>Dosagem:</b> ${m.dosagem || "-"}
+                </div>
+
+                <!-- Situação -->
+                <div style="
+                    margin-top:15px;
+                    padding:15px;
+                    background:#e8f5e9;
+                    border-left:7px solid #2e7d32;
+                    border-radius:8px;
+                    color:#1b5e20;
+                    font-weight:bold;
+                    line-height:1.6;
+                ">
+
+                    <div style="font-size:40px;">
+                        😊 👍
+                    </div>
+
+                    Este medicamento faz parte da relação de medicamentos de Assis-SP.
+
+                </div>
+
+                <!-- Link -->
+                <div style="margin-top:15px;">
+
+                    <a href="https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponiveis/"
+                       target="_blank"
+                       style="
+                           display:inline-block;
+                           background:#1976d2;
+                           color:white;
+                           text-decoration:none;
+                           padding:10px 16px;
+                           border-radius:8px;
+                           font-weight:bold;
+                       ">
+                        📍 Consultar disponibilidade nas unidades de saúde
+                    </a>
+
+                </div>
+
+                <!-- Botão ouvir -->
+                <div style="margin-top:15px;">
+
+                    <button
+                        class="btn-ouvir"
+                        data-text='${JSON.stringify(textoFala)}'
+                        style="
+                            padding:10px 16px;
+                            border:none;
+                            border-radius:8px;
+                            background:#43a047;
+                            color:white;
+                            cursor:pointer;
+                            font-size:15px;
+                            font-weight:bold;
+                        ">
+
+                        🔊 Ouvir resposta
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+    }
+}
+    // ==========================
+    // BOTÃO OUVIR (ROBUSTO)
     // ==========================
     document.addEventListener("click", function (e) {
         const btn = e.target.closest(".btn-ouvir");
@@ -253,36 +353,94 @@ document.addEventListener("DOMContentLoaded", () => {
         processar(input.value);
     };
 
-    // ==========================
-    // UNIDADES
-    // ==========================
-    window.mostrarUnidades = function () {
+   // ==========================
+// UNIDADES DISPENSADORAS DE MEDICAMENTOS
+// ==========================
+window.mostrarUnidades = function () {
 
-        const div = document.getElementById("listaUnidades");
-        if (!div) return;
+    const div = document.getElementById("listaUnidades");
+    if (!div) return;
 
-        let html = `<h3 style="color:#1565c0;">💊 Unidades Dispensadoras de Medicamentos de Assis-SP</h3>`;
+    let html = `
+        <h3 style="
+            color:#1565c0;
+            text-align:center;
+            margin-bottom:20px;
+            font-size:24px;
+        ">
+            💊 Unidades Dispensadoras de Medicamentos de Assis-SP
+        </h3>
+    `;
 
-        const lista = window.unidadesDispensadoras || [];
+    const lista = window.unidadesDispensadoras || [];
 
-        if (lista.length === 0) {
-            div.innerHTML = "Nenhuma unidade cadastrada.";
-            return;
-        }
+    if (lista.length === 0) {
+        div.innerHTML = `
+            <div style="
+                background:#ffebee;
+                border-left:6px solid #d32f2f;
+                padding:15px;
+                border-radius:10px;
+                color:#c62828;
+                font-weight:bold;
+                text-align:center;
+            ">
+                😞 Nenhuma unidade cadastrada.
+            </div>
+        `;
+        return;
+    }
 
-        for (const u of lista) {
+    for (const u of lista) {
 
-            html += `
-            <div style="border:1px solid #ddd;padding:12px;margin:10px 0;border-radius:10px;">
-                🏥 <b>${u.nome}</b><br>
-                📍 ${u.endereco}<br>
-                📞 ${u.telefone || "-"}<br>
-                🌎 ${u.regiao || "-"}<br>
-                💊 ${u.componente || "-"}
-            </div>`;
-        }
+        html += `
+            <div style="
+                background:#ffffff;
+                border:1px solid #dcdcdc;
+                border-left:6px solid #1976d2;
+                border-radius:12px;
+                padding:15px;
+                margin-bottom:15px;
+                box-shadow:0 2px 6px rgba(0,0,0,.08);
+            ">
 
-        div.innerHTML = html;
-    };
+                <div style="
+                    font-size:20px;
+                    font-weight:bold;
+                    color:#1565c0;
+                    margin-bottom:12px;
+                ">
+                    🏥 ${u.nome}
+                </div>
 
-});
+                <div style="margin-bottom:8px;">
+                    📍 <b>Endereço:</b><br>
+                    ${u.endereco}
+                </div>
+
+                <div style="margin-bottom:8px;">
+                    📞 <b>Telefone:</b><br>
+                    ${u.telefone || "Não informado"}
+                </div>
+
+                <div style="margin-bottom:8px;">
+                    🌎 <b>Região:</b><br>
+                    ${u.regiao || "-"}
+                </div>
+
+                <div style="
+                    background:#e8f5e9;
+                    padding:10px;
+                    border-radius:8px;
+                    color:#1b5e20;
+                    font-weight:bold;
+                ">
+                    💊 ${u.componente || "-"}
+                </div>
+
+            </div>
+        `;
+    }
+
+    div.innerHTML = html;
+};
