@@ -1103,6 +1103,13 @@ window.medicamentos = [
         forma: "comprimido",
         dosagem: "20 mg"
     },
+
+     {
+        nome: "Sinvastatina",
+        forma: "comprimido",
+        dosagem: "40 mg"
+    },
+    
     {
         nome: "Sulfadiazina de prata",
         forma: "creme",
