@@ -181,7 +181,13 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
         }
     }
-
+    
+document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("btn-ouvir")) {
+        const texto = decodeURIComponent(e.target.dataset.text);
+        window.falar(texto);
+    }
+});
     // ==========================
     // CONSULTA MANUAL
     // ==========================
