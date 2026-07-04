@@ -197,7 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         for (const m of encontrados) {
 
-            const textoFala = `${m.nome} ${m.dosagem || ""}. Disponível no SUS.`;
+            const textoFala = `${m.nome} ${m.dosagem || ""}. Este medicamento faz parte da relação de medicamentos de Assis-SP.`;
 
             div.innerHTML += `
                 <div style="padding:10px;border-bottom:1px solid #ddd">
@@ -205,9 +205,17 @@ document.addEventListener("DOMContentLoaded", () => {
                     <b>${m.nome}</b><br>
                     ${m.forma || ""} - ${m.dosagem || ""}<br><br>
 
-                    <span style="color:green;font-weight:bold;">
-                        ✔ Disponível no SUS
-                    </span><br>
+                    <span style="
+    color:#1b5e20;
+    font-weight:bold;
+    font-size:18px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+">
+    <span style="font-size:30px;">😊👍</span>
+    <span>Este medicamento faz parte da relação de medicamentos de Assis-SP.</span>
+</span><br>
 
                     <a href="https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponiveis/"
                        target="_blank">
