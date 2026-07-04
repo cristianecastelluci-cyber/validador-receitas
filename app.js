@@ -171,14 +171,111 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     // PROCESSAMENTO
     // ==========================
-
 function processar(textoOCR) {
 
     const div = document.getElementById("resultadoMedicamento");
     if (!div) return;
 
-    const encontrados = buscar(textoOCR);
+    const linhas = textoOCR
+        .split("\n")
+        .map(l => l.trim())
+        .filter(l => l.length > 0);
 
+    let encontradosTotais = [];
+    let naoEncontrados = [];
+
+    for (const linha of linhas) {
+
+        const encontrados = buscar(linha);
+
+        if (encontrados.length > 0) {
+            encontradosTotais.push(...encontrados);
+        } else {
+            naoEncontrados.push(linha);
+        }
+    }
+
+    // remove duplicados
+    const unicos = [...new Map(encontradosTotais.map(m => [m.nome, m])).values()];
+
+    let html = `
+        <h3 style="color:#1565c0;">
+            📷 Resultado da Receita
+        </h3>
+    `;
+
+    // ==========================
+    // MEDICAMENTOS ENCONTRADOS
+    // ==========================
+    if (unicos.length > 0) {
+
+        html += `<h4 style="color:green;">🟢 Encontrados</h4>`;
+
+        for (const m of unicos) {
+
+            const textoFala =
+                `${m.nome} ${m.dosagem || ""}. Este medicamento faz parte da relação de medicamentos de Assis-SP.`;
+
+            html += `
+                <div style="
+                    background:#e8f5e9;
+                    border-left:6px solid #2e7d32;
+                    padding:12px;
+                    margin:10px 0;
+                    border-radius:10px;
+                ">
+
+                    <div style="font-size:18px;font-weight:bold;">
+                        💊 ${m.nome}
+                    </div>
+
+                    <div style="margin-top:5px;">
+                        📦 ${m.forma || "-"}<br>
+                        ⚖️ ${m.dosagem || "-"}
+                    </div>
+
+                    <div style="margin-top:10px;font-weight:bold;color:#1b5e20;">
+                        😊 👍 Este medicamento faz parte da relação de medicamentos de Assis-SP.
+                    </div>
+
+                    <button class="btn-ouvir"
+                        data-text='${JSON.stringify(textoFala)}'
+                        style="margin-top:10px;padding:6px 10px;border-radius:6px;">
+                        🔊 Ouvir
+                    </button>
+
+                </div>
+            `;
+        }
+    }
+
+    // ==========================
+    // NÃO ENCONTRADOS
+    // ==========================
+    if (naoEncontrados.length > 0) {
+
+        html += `<h4 style="color:red;">🔴 Não encontrados</h4>`;
+
+        for (const item of naoEncontrados) {
+
+            html += `
+                <div style="
+                    background:#ffebee;
+                    border-left:6px solid #d32f2f;
+                    padding:12px;
+                    margin:10px 0;
+                    border-radius:10px;
+                    color:#c62828;
+                    font-weight:bold;
+                ">
+                    😞 👎 ${item}
+                </div>
+            `;
+        }
+    }
+
+    div.innerHTML = html;
+}
     // ==========================
     // NENHUM MEDICAMENTO ENCONTRADO
     // ==========================
