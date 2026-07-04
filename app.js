@@ -1,255 +1,238 @@
+// ==========================
+// SEGURANÇA GLOBAL
+// ==========================
 window.medicamentos = window.medicamentos || [];
 
 document.addEventListener("DOMContentLoaded", () => {
 
-// ==========================
-// NORMALIZAÇÃO
-// ==========================
-function normalizar(texto) {
-    return (texto || "")
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .trim();
-}
-
-// ==========================
-// CHAVE ÚNICA (EVITA DUPLICAÇÃO)
-// ==========================
-function chaveMedicamento(m) {
-    return normalizar(m.nome) + "|" + (m.forma || "") + "|" + (m.dosagem || "");
-}
-
-// ==========================
-// BOTÃO CÂMERA
-// ==========================
-const btnCamera = document.getElementById("btnCamera");
-const upload = document.getElementById("upload");
-
-if (btnCamera && upload) {
-    btnCamera.onclick = () => upload.click();
-}
-
-// ==========================
-// OCR
-// ==========================
-if (upload) {
-    upload.onchange = async (event) => {
-
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const resultadoOCR = document.getElementById("resultado");
-        if (resultadoOCR) resultadoOCR.innerText = "🔎 Lendo receita...";
-
-        try {
-            const { data: { text } } = await Tesseract.recognize(file, "por");
-
-            if (resultadoOCR) resultadoOCR.innerText = text;
-
-            processarMedicamentos(text);
-
-        } catch (e) {
-            alert("Erro ao ler imagem");
-        }
-    };
-}
-
-// ==========================
-// VOZ
-// ==========================
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-if (SpeechRecognition) {
-    const recognition = new SpeechRecognition();
-    recognition.lang = "pt-BR";
-
-    const btnVoz = document.getElementById("voz");
-
-    if (btnVoz) {
-        btnVoz.onclick = () => recognition.start();
+    // ==========================
+    // NORMALIZAÇÃO
+    // ==========================
+    function normalizar(texto) {
+        return (texto || "")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim();
     }
 
-    recognition.onresult = (event) => {
-        processarMedicamentos(event.results[0][0].transcript);
-    };
-}
+    // ==========================
+    // CHAVE ANTI DUPLICAÇÃO
+    // ==========================
+    function chave(m) {
+        return normalizar(m.nome)
+            .split(",")[0]
+            .split(" + ")[0]
+            .split(" ")[0];
+    }
 
-// ==========================
-// LIBRAS
-// ==========================
-const btnLibras = document.getElementById("libras");
+    // ==========================
+    // BOTÃO CÂMERA
+    // ==========================
+    const btnCamera = document.getElementById("btnCamera");
+    const upload = document.getElementById("upload");
 
-if (btnLibras) {
-    btnLibras.onclick = () => {
-        alert("VLibras ativado");
-    };
-}
+    if (btnCamera && upload) {
+        btnCamera.onclick = () => upload.click();
+    }
 
-// ==========================
-// CORREÇÃO SIMPLES OCR
-// ==========================
-function corrigirMedicamento(texto, lista) {
+    // ==========================
+    // OCR
+    // ==========================
+    if (upload) {
+        upload.onchange = async (event) => {
 
-    const t = normalizar(texto);
+            const file = event.target.files[0];
+            if (!file) return;
 
-    let melhor = null;
-    let scoreMax = 0;
+            const div = document.getElementById("resultado");
+            if (div) div.innerText = "🔎 Lendo receita...";
 
-    lista.forEach(m => {
+            try {
+                const { data: { text } } = await Tesseract.recognize(file, "por");
 
-        const nome = normalizar(m.nome);
-        let score = 0;
+                if (div) div.innerText = text;
 
-        if (nome.includes(t) || t.includes(nome)) score += 5;
+                processar(text);
 
-        t.split(" ").forEach(p => {
-            if (p.length > 3 && nome.includes(p)) score += 2;
-        });
+            } catch (e) {
+                console.error(e);
+                alert("Erro ao ler receita");
+            }
+        };
+    }
 
-        if (score > scoreMax) {
-            scoreMax = score;
-            melhor = m;
+    // ==========================
+    // VOZ
+    // ==========================
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = "pt-BR";
+
+        const btnVoz = document.getElementById("voz");
+
+        if (btnVoz) {
+            btnVoz.onclick = () => recognition.start();
         }
-    });
 
-    return scoreMax >= 3 ? melhor : null;
-}
+        recognition.onresult = (e) => {
+            processar(e.results[0][0].transcript);
+        };
+    }
 
-// ==========================
-// BUSCA (SEM DUPLICAÇÃO)
-// ==========================
-function buscar(textoOCR) {
+    // ==========================
+    // LIBRAS
+    // ==========================
+    const btnLibras = document.getElementById("libras");
 
-    const texto = normalizar(textoOCR || "");
+    if (btnLibras) {
+        btnLibras.onclick = () => {
+            alert("🤟 VLibras ativado");
+            const btn = document.querySelector("[vw-access-button]");
+            if (btn) btn.click();
+        };
+    }
 
-    const resultados = [];
-    const usados = new Set();
+    // ==========================
+    // BUSCA SEGURA
+    // ==========================
+    function buscar(textoOCR) {
 
-    if (!window.medicamentos) return [];
+        const t = normalizar(textoOCR);
+        const lista = window.medicamentos || [];
 
-    for (const m of medicamentos) {
+        const encontrados = [];
+        const usados = new Set();
 
-        const nome = normalizar(m.nome || "");
+        for (const m of lista) {
 
-        let encontrou =
-            texto.includes(nome) ||
-            nome.includes(texto) ||
-            texto.includes(nome.split(" ")[0]);
+            const nome = normalizar(m.nome);
 
-        // sinônimos simples e seguros
-        if (!encontrou && m.sinonimos) {
-            for (const s of m.sinonimos) {
-                const sn = normalizar(s);
-                if (texto.includes(sn) || sn.includes(texto)) {
-                    encontrou = true;
-                    break;
+            let ok =
+                t.includes(nome) ||
+                nome.includes(t) ||
+                t.includes(nome.split(" ")[0]);
+
+            // sinônimos (amoxilina etc)
+            if (!ok && m.sinonimos) {
+                for (const s of m.sinonimos) {
+                    const sn = normalizar(s);
+                    if (t.includes(sn) || sn.includes(t)) {
+                        ok = true;
+                        break;
+                    }
+                }
+            }
+
+            if (ok) {
+
+                const k = chave(m);
+
+                if (!usados.has(k)) {
+                    usados.add(k);
+                    encontrados.push(m);
                 }
             }
         }
 
-        if (encontrou) {
+        return encontrados;
+    }
 
-            // 🔥 remove duplicados (losartana, clopidogrel etc.)
-            const chave = nome.split(" ")[0];
+    // ==========================
+    // FALA
+    // ==========================
+    function falar(texto) {
+        const u = new SpeechSynthesisUtterance(texto);
+        u.lang = "pt-BR";
+        speechSynthesis.speak(u);
+    }
 
-            if (!usados.has(chave)) {
-                usados.add(chave);
-                resultados.push(m);
-            }
+    // ==========================
+    // PROCESSAMENTO PRINCIPAL
+    // ==========================
+    function processar(textoOCR) {
+
+        const div = document.getElementById("resultadoMedicamento");
+        if (!div) return;
+
+        const encontrados = buscar(textoOCR);
+
+        if (encontrados.length === 0) {
+            const msg = "Nenhum medicamento identificado na rede municipal.";
+            div.innerHTML = msg;
+            falar(msg);
+            return;
+        }
+
+        div.innerHTML = "<h3>💊 Medicamentos encontrados</h3>";
+
+        for (const m of encontrados) {
+
+            const msg = `${m.nome} ${m.dosagem || ""}. Disponível no SUS.`;
+
+            div.innerHTML += `
+                <div style="padding:10px;border-bottom:1px solid #ddd">
+                    <b>${m.nome}</b><br>
+                    ${m.forma || ""} - ${m.dosagem || ""}<br><br>
+
+                    <span style="color:green;font-weight:bold;">
+                        ✔ Disponível no SUS
+                    </span><br>
+
+                    <a href="https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponiveis/"
+                       target="_blank">
+                       Ver estoque oficial
+                    </a>
+                </div>
+            `;
+
+            falar(msg);
         }
     }
 
-    return resultados;
-}
-// ==========================
-// FALA
-// ==========================
-function falar(texto) {
-    const speech = new SpeechSynthesisUtterance(texto);
-    speech.lang = "pt-BR";
-    speechSynthesis.speak(speech);
-}
+    // ==========================
+    // CONSULTA MANUAL
+    // ==========================
+    window.consultarMedicamento = function () {
 
-// ==========================
-// PROCESSAMENTO PRINCIPAL
-// ==========================
-function processarMedicamentos(textoOCR) {
+        const input = document.getElementById("inputMedicamento");
 
-    const encontrados = buscarMedicamentos(textoOCR);
+        if (!input || !input.value.trim()) {
+            alert("Digite um medicamento");
+            return;
+        }
 
-    const div = document.getElementById("resultadoMedicamento");
+        processar(input.value);
+    };
 
-    if (!div) return;
+    // ==========================
+    // UNIDADES SUS
+    // ==========================
+    window.mostrarUnidades = function () {
 
-    if (encontrados.length === 0) {
-        const msg = "Nenhum medicamento identificado na rede municipal.";
-        div.innerHTML = msg;
-        falar(msg);
-        return;
-    }
+        const div = document.getElementById("listaUnidades");
+        if (!div) return;
 
-    div.innerHTML = "<h3>💊 Medicamentos encontrados</h3>";
+        let html = "<h3>🏥 Unidades do SUS em Assis-SP</h3>";
 
-    encontrados.forEach(m => {
+        const lista = window.unidadesDispensadoras || [];
 
-        const msg = `${m.nome} - ${m.dosagem}. Disponível no SUS.`;
+        for (const u of lista) {
+            html += `
+                <div style="margin-bottom:10px;padding:10px;border:1px solid #ccc;">
+                    📍 <b>${u.nome}</b><br>
+                    🏠 ${u.endereco}<br>
+                    📞 ${u.telefone || ""}<br>
+                    🌍 ${u.regiao || ""}<br>
+                    💊 ${u.componente || ""}
+                </div>
+            `;
+        }
 
-        div.innerHTML += `
-            <div style="padding:10px;border-bottom:1px solid #ccc;">
-                <b>${m.nome}</b><br>
-                ${m.forma || ""} - ${m.dosagem || ""}<br><br>
-
-                <span style="color:green;">✔ Disponível no SUS</span><br>
-
-                <a href="https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponiveis/" target="_blank">
-                    Ver estoque oficial
-                </a>
-            </div>
-        `;
-
-        falar(msg);
-    });
-}
-
-// ==========================
-// CONSULTA MANUAL
-// ==========================
-window.consultarMedicamento = function () {
-
-    const input = document.getElementById("inputMedicamento");
-
-    if (!input || !input.value.trim()) {
-        alert("Digite um medicamento");
-        return;
-    }
-
-    processarMedicamentos(input.value);
-};
-
-// ==========================
-// UNIDADES SUS
-// ==========================
-window.mostrarUnidades = function () {
-
-    const div = document.getElementById("listaUnidades");
-    if (!div) return;
-
-    let html = "<h3>🏥 Unidades do SUS em Assis-SP</h3>";
-
-    unidadesDispensadoras.forEach(u => {
-        html += `
-            <div style="margin-bottom:10px;padding:10px;border:1px solid #ccc;">
-                📍 <b>${u.nome}</b><br>
-                🏠 ${u.endereco}<br>
-                📞 ${u.telefone || ""}<br>
-                🌍 ${u.regiao || ""}<br>
-                💊 ${u.componente || ""}
-            </div>
-        `;
-    });
-
-    div.innerHTML = html;
-};
+        div.innerHTML = html;
+    };
 
 });
