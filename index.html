@@ -23,7 +23,7 @@
 
         <button id="btnCamera">📷 TIRAR FOTO DA RECEITA</button>
 
-        <p id="resultado"></p>
+        <p id="resultadoTexto"></p>
 
     </div>
 
@@ -32,41 +32,40 @@
     <button id="libras">🤟 Libras</button>
     <button id="sobre">ℹ️ Sobre</button>
 
-    <!-- BOTÃO CORRETO -->
     <button onclick="mostrarUnidades()">
         Ver unidades do SUS
     </button>
 
-    <!-- onde o JS pode renderizar conteúdo -->
     <div id="listaUnidades"></div>
+
+    <div style="margin-top:20px;">
+
+        <h3>💊 Consultar Medicamento</h3>
+
+        <input type="text" id="inputMedicamento" placeholder="Digite o nome do medicamento" />
+
+        <button onclick="consultarMedicamento()">
+            🔍 Buscar
+        </button>
+
+        <button onclick="falarMedicamento()">
+            🎤 Falar
+        </button>
+
+    </div>
+
+    <div id="resultadoMedicamento"></div>
 
 </main>
 
 <!-- LIB OCR -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
-<!-- SEU DADOS (IMPORTANTE VIR PRIMEIRO) -->
+<!-- DADOS -->
 <script src="unidadesDispensadoras.js"></script>
 
-<!-- SUA LÓGICA -->
+<!-- LÓGICA -->
 <script src="app.js"></script>
 
 </body>
-    <div style="margin-top:20px;">
-
-    <h3>💊 Consultar Medicamento</h3>
-
-    <input type="text" id="inputMedicamento" placeholder="Digite o nome do medicamento" />
-
-    <button onclick="consultarMedicamento()">
-        🔍 Buscar
-    </button>
-
-    <button onclick="falarMedicamento()">
-        🎤 Falar
-    </button>
-
-</div>
-
-<div id="resultado"></div>
 </html>
