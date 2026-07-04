@@ -1,3 +1,4 @@
+console.log("Vozes disponíveis:", speechSynthesis.getVoices());
 speechSynthesis.onvoiceschanged = () => {
     console.log("Vozes carregadas:", speechSynthesis.getVoices());
 };
