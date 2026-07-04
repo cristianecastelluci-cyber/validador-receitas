@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,37 +10,36 @@
     body {
         font-family: Arial, sans-serif;
         margin: 0;
-        background: #f4f8fb; /* fundo bem suave */
+        background: #f4f8fb;
         color: #1f2a30;
         font-size: 20px;
     }
 
     header {
-        background: #7fb3d5; /* azul claro principal */
+        background: #7fb3d5;
         color: white;
         text-align: center;
         padding: 20px;
     }
 
     header h1 {
-        font-size: 26px;
         margin: 0;
+        font-size: 26px;
     }
 
     header p {
-        font-size: 16px;
         margin: 5px 0 0;
-        opacity: 0.95;
+        font-size: 16px;
     }
 
     .container {
-        padding: 15px;
         max-width: 700px;
         margin: auto;
+        padding: 15px;
     }
 
     .card {
-        background: #ffffff;
+        background: white;
         border-radius: 16px;
         padding: 20px;
         margin-bottom: 18px;
@@ -48,23 +48,19 @@
     }
 
     h3 {
-        font-size: 22px;
-        margin-bottom: 10px;
-        color: #2c3e50;
+        margin-top: 0;
     }
 
     button {
         width: 100%;
         padding: 18px;
-        margin-top: 12px;
+        margin-top: 10px;
         border: none;
         border-radius: 12px;
         font-size: 20px;
-        background: #8ecae6; /* azul claro botão */
+        background: #8ecae6;
         color: #0b2a3d;
         font-weight: bold;
-        cursor: pointer;
-        transition: 0.2s;
     }
 
     button:hover {
@@ -76,28 +72,20 @@
         padding: 16px;
         font-size: 18px;
         border-radius: 10px;
-        border: 1px solid #cfdfe8;
+        border: 1px solid #ccc;
         margin-top: 10px;
-        background: #fbfdff;
     }
 
     .info {
-        background: #f3f9fc;
-        padding: 15px;
-        border-radius: 10px;
         margin-top: 10px;
-        font-size: 18px;
+        padding: 15px;
+        background: #f3f9fc;
+        border-radius: 10px;
         border: 1px solid #e3eef5;
     }
 
     a {
-        color: #5a9bd5;
-    }
-
-    #resultado, #resultadoMedicamento, #listaUnidades {
-        margin-top: 15px;
-        font-size: 18px;
-        line-height: 1.5;
+        color: #2b7bbb;
     }
 </style>
 </head>
@@ -106,23 +94,22 @@
 
 <header>
     <h1>💙 FARMASSIS IA</h1>
-    <p>Ajuda com seus medicamentos do SUS</p>
+    <p>Assistente de medicamentos do SUS</p>
 </header>
 
 <div class="container">
 
-    <!-- 📷 RECEITA -->
+    <!-- CÂMERA -->
     <div class="card">
-        <h3>📷 Tirar Foto da Receita</h3>
+        <h3>📷 Receita Médica</h3>
 
         <input type="file" id="upload" accept="image/*" capture="environment" style="display:none;">
-
         <button id="btnCamera">TIRAR FOTO DA RECEITA</button>
 
         <div id="resultado" class="info"></div>
     </div>
 
-    <!-- 💊 MEDICAMENTO -->
+    <!-- MEDICAMENTO -->
     <div class="card">
         <h3>💊 Consultar Medicamento</h3>
 
@@ -134,21 +121,23 @@
         <div id="resultadoMedicamento" class="info"></div>
     </div>
 
-    <!-- 🏥 UNIDADES -->
+    <!-- UNIDADES -->
     <div class="card">
-        <h3>🏥 Onde pegar remédio</h3>
+        <h3>🏥 Unidades do SUS</h3>
 
-        <button onclick="mostrarUnidades()">VER UNIDADES DO SUS</button>
+        <button onclick="mostrarUnidades()">VER UNIDADES</button>
 
         <div id="listaUnidades" class="info"></div>
     </div>
 
-    <!-- 🤟 LIBRAS -->
+    <!-- LIBRAS -->
     <div class="card">
         <h3>🤟 Acessibilidade</h3>
 
         <button id="libras">ATIVAR LIBRAS</button>
-        <p style="font-size:16px;">Para pessoas com dificuldade de leitura.</p>
+        <p style="font-size:16px;">
+            Tradução automática em Libras (VLibras)
+        </p>
     </div>
 
 </div>
@@ -166,10 +155,14 @@
     new window.VLibras.Widget('https://vlibras.gov.br/app');
 </script>
 
+<!-- OCR -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
+<!-- DADOS -->
 <script src="unidadesDispensadoras.js"></script>
 <script src="medicamentos.js"></script>
+
+<!-- LÓGICA -->
 <script src="app.js"></script>
 
 </body>
