@@ -1084,7 +1084,7 @@ window.medicamentos = [
         dosagem: "envelope com 27,9 g"
     },
     {
-        nome: "Salbutamol, sulfato de",
+        nome: "Salbutamol sulfato de",
         forma: "aerossol",
         dosagem: "100 mcg/dose"
     },
