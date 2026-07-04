@@ -1,7 +1,10 @@
-console.log("Vozes disponíveis:", speechSynthesis.getVoices());
+// ==========================
+// DEBUG VOZ (opcional)
+// ==========================
 speechSynthesis.onvoiceschanged = () => {
     console.log("Vozes carregadas:", speechSynthesis.getVoices());
 };
+
 // ==========================
 // SEGURANÇA GLOBAL
 // ==========================
@@ -21,51 +24,46 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // FALA GLOBAL (TTS)
+    // VOZ GLOBAL (CORRIGIDA E ESTÁVEL)
     // ==========================
-   window.falar = function (texto) {
-    if (!texto) return;
+    window.falar = function (texto) {
+        if (!texto) return;
 
-    // cancela qualquer fala travada
-    speechSynthesis.cancel();
+        speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(texto);
+        const utterance = new SpeechSynthesisUtterance(texto);
 
-    utterance.lang = "pt-BR";
-    utterance.rate = 1;
-    utterance.pitch = 1;
-    utterance.volume = 1;
+        utterance.lang = "pt-BR";
+        utterance.rate = 1;
+        utterance.pitch = 1;
+        utterance.volume = 1;
 
-    const falarComVoz = () => {
+        const iniciar = () => {
+            const voices = speechSynthesis.getVoices();
+
+            const vozPT =
+                voices.find(v => v.lang === "pt-BR") ||
+                voices.find(v => v.lang.startsWith("pt")) ||
+                voices[0];
+
+            if (vozPT) {
+                utterance.voice = vozPT;
+            }
+
+            speechSynthesis.speak(utterance);
+        };
+
         const voices = speechSynthesis.getVoices();
 
-        // tenta achar voz pt-BR primeiro
-        let voice =
-            voices.find(v => v.lang === "pt-BR") ||
-            voices.find(v => v.lang.includes("pt")) ||
-            voices[0];
-
-        if (voice) {
-            utterance.voice = voice;
+        if (!voices || voices.length === 0) {
+            speechSynthesis.onvoiceschanged = iniciar;
+        } else {
+            iniciar();
         }
 
-        speechSynthesis.speak(utterance);
+        utterance.onstart = () => console.log("🔊 falando:", texto);
+        utterance.onerror = (e) => console.error("Erro voz:", e);
     };
-
-    // 🔥 garante carregamento das vozes
-    const voices = speechSynthesis.getVoices();
-
-    if (voices.length === 0) {
-        speechSynthesis.onvoiceschanged = () => {
-            falarComVoz();
-        };
-    } else {
-        falarComVoz();
-    }
-
-    utterance.onstart = () => console.log("🔊 falando:", texto);
-    utterance.onerror = (e) => console.error("Erro voz:", e);
-};
 
     // ==========================
     // BOTÃO CÂMERA
@@ -104,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // VOZ (INPUT POR ÁUDIO)
+    // VOZ (INPUT)
     // ==========================
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -213,9 +211,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     <br><br>
 
-                    <!-- BOTÃO OUVIR PROFISSIONAL -->
+                    <!-- BOTÃO OUVIR -->
                     <button class="btn-ouvir"
-                        data-text="${encodeURIComponent(textoFala)}"
+                        data-text="${textoFala.replace(/"/g, '&quot;')}"
                         style="margin-top:8px;padding:6px 10px;cursor:pointer;border-radius:6px;">
                         🔊 Ouvir
                     </button>
@@ -226,11 +224,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // EVENTO GLOBAL DOS BOTÕES
+    // EVENTO GLOBAL BOTÃO OUVIR
     // ==========================
     document.addEventListener("click", function (e) {
         if (e.target.classList.contains("btn-ouvir")) {
-            const texto = decodeURIComponent(e.target.dataset.text);
+            const texto = e.target.dataset.text;
             window.falar(texto);
         }
     });
