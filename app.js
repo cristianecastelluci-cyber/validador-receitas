@@ -16,7 +16,6 @@ document.getElementById("upload").onchange = async (event) => {
     if (!file) return;
 
     const resultadoOCR = document.getElementById("resultado");
-    const resultadoMedicamento = document.getElementById("resultadoMedicamento");
 
     resultadoOCR.innerText = "🔎 Lendo receita...";
 
@@ -46,6 +45,18 @@ recognition.onresult = (event) => {
     const texto = event.results[0][0].transcript;
 
     processarMedicamentos(texto);
+};
+
+
+// ==========================
+// LIBRAS (CORRIGIDO)
+// ==========================
+document.getElementById("libras").onclick = () => {
+
+    alert("🤟 VLibras ativado! Use o botão azul na tela para tradução em Libras.");
+
+    const btn = document.querySelector('[vw-access-button]');
+    if (btn) btn.click();
 };
 
 
@@ -84,7 +95,7 @@ function buscarMedicamentos(textoOCR) {
 
 
 // ==========================
-// FALA (SÍNTESE DE VOZ)
+// FALA
 // ==========================
 function falar(texto) {
 
@@ -120,7 +131,7 @@ function processarMedicamentos(textoOCR) {
         const msg = `
 ${m.nome} - ${m.dosagem}.
 Medicamento disponível na rede municipal.
-Verifique o estoque atual em cada unidade aqui:
+Verifique o estoque em:
 https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponiveis/
         `;
 
@@ -164,13 +175,6 @@ function mostrarUnidades() {
             </div>
         `;
     });
-document.getElementById("libras").onclick = () => {
 
-    alert("🤟 VLibras ativado! Use o botão azul na tela para tradução em Libras.");
-
-    // opcional: abrir automaticamente o widget
-    const btn = document.querySelector('[vw-access-button]');
-    if (btn) btn.click();
-};
     div.innerHTML = html;
 }
