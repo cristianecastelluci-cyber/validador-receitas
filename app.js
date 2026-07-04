@@ -119,54 +119,49 @@ function corrigirMedicamento(texto, lista) {
 // ==========================
 // BUSCA (SEM DUPLICAÇÃO)
 // ==========================
-function buscarMedicamentos(textoOCR) {
+function buscar(textoOCR) {
 
-    const texto = normalizar(textoOCR);
+    const texto = normalizar(textoOCR || "");
 
     const resultados = [];
-    const jaAdicionados = new Set();
+    const usados = new Set();
 
-    medicamentos.forEach(m => {
+    if (!window.medicamentos) return [];
 
-        const nome = normalizar(m.nome);
-        let encontrou = false;
+    for (const m of medicamentos) {
 
-        if (
+        const nome = normalizar(m.nome || "");
+
+        let encontrou =
             texto.includes(nome) ||
             nome.includes(texto) ||
-            texto.includes(nome.split(" ")[0])
-        ) {
-            encontrou = true;
-        }
+            texto.includes(nome.split(" ")[0]);
 
+        // sinônimos simples e seguros
         if (!encontrou && m.sinonimos) {
-            encontrou = m.sinonimos.some(s =>
-                texto.includes(normalizar(s))
-            );
-        }
-
-        if (!encontrou) {
-            const corrigido = corrigirMedicamento(texto, medicamentos);
-            if (corrigido) {
-                m = corrigido;
-                encontrou = true;
+            for (const s of m.sinonimos) {
+                const sn = normalizar(s);
+                if (texto.includes(sn) || sn.includes(texto)) {
+                    encontrou = true;
+                    break;
+                }
             }
         }
 
         if (encontrou) {
 
-            const chave = chaveMedicamento(m);
+            // 🔥 remove duplicados (losartana, clopidogrel etc.)
+            const chave = nome.split(" ")[0];
 
-            if (!jaAdicionados.has(chave)) {
-                jaAdicionados.add(chave);
+            if (!usados.has(chave)) {
+                usados.add(chave);
                 resultados.push(m);
             }
         }
-    });
+    }
 
     return resultados;
 }
-
 // ==========================
 // FALA
 // ==========================
