@@ -155,22 +155,19 @@ function corrigirMedicamento(texto, lista) {
 
     const t = normalizar(texto);
 
-    let melhorMatch = null;
+    let melhor = null;
     let melhorScore = 0;
 
     lista.forEach(m => {
 
         const nome = normalizar(m.nome);
-
         let score = 0;
 
         if (nome.includes(t) || t.includes(nome)) {
             score += 5;
         }
 
-        const palavras = t.split(" ");
-
-        palavras.forEach(p => {
+        t.split(" ").forEach(p => {
             if (p.length > 3 && nome.includes(p)) {
                 score += 2;
             }
@@ -178,11 +175,11 @@ function corrigirMedicamento(texto, lista) {
 
         if (score > melhorScore) {
             melhorScore = score;
-            melhorMatch = m;
+            melhor = m;
         }
     });
 
-    return melhorScore >= 3 ? melhorMatch : null;
+    return melhorScore >= 3 ? melhor : null;
 }
 
 
