@@ -85,5 +85,188 @@
     new window.VLibras.Widget('https://vlibras.gov.br/app');
 </script>
 
+    <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FARMASSIS IA</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background: #f5f7fa;
+        color: #111;
+        font-size: 20px;
+    }
+
+    header {
+        background: #0d6efd;
+        color: white;
+        text-align: center;
+        padding: 20px;
+    }
+
+    header h1 {
+        font-size: 26px;
+        margin: 0;
+    }
+
+    header p {
+        font-size: 16px;
+        margin: 5px 0 0;
+    }
+
+    .container {
+        padding: 15px;
+        max-width: 700px;
+        margin: auto;
+    }
+
+    .card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    h3 {
+        font-size: 22px;
+        margin-bottom: 10px;
+    }
+
+    button {
+        width: 100%;
+        padding: 18px;
+        margin-top: 12px;
+        border: none;
+        border-radius: 12px;
+        font-size: 20px;
+        background: #0d6efd;
+        color: white;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #0b5ed7;
+    }
+
+    input {
+        width: 100%;
+        padding: 16px;
+        font-size: 18px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        margin-top: 10px;
+    }
+
+    .info {
+        background: #e8f4ff;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 10px;
+        font-size: 18px;
+    }
+
+    .ok {
+        color: green;
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    a {
+        font-size: 18px;
+        color: #0d6efd;
+    }
+
+    #resultado, #resultadoMedicamento, #listaUnidades {
+        margin-top: 15px;
+        font-size: 18px;
+        line-height: 1.5;
+    }
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>💙 FARMASSIS IA</h1>
+    <p>Ajuda com seus medicamentos do SUS</p>
+</header>
+
+<div class="container">
+
+    <!-- 📷 RECEITA -->
+    <div class="card">
+        <h3>📷 Tirar Foto da Receita</h3>
+
+        <input type="file" id="upload" accept="image/*" capture="environment" style="display:none;">
+
+        <button id="btnCamera">TIRAR FOTO DA RECEITA</button>
+
+        <div id="resultado" class="info"></div>
+    </div>
+
+    <!-- 💊 MEDICAMENTO -->
+    <div class="card">
+        <h3>💊 Consultar Medicamento</h3>
+
+        <input type="text" id="inputMedicamento" placeholder="Digite o nome do remédio">
+
+        <button onclick="consultarMedicamento()">CONSULTAR</button>
+        <button id="voz">🎤 FALAR O REMÉDIO</button>
+
+        <div id="resultadoMedicamento" class="info"></div>
+    </div>
+
+    <!-- 🏥 UNIDADES -->
+    <div class="card">
+        <h3>🏥 Onde pegar remédio</h3>
+
+        <button onclick="mostrarUnidades()">VER UNIDADES DO SUS</button>
+
+        <div id="listaUnidades" class="info"></div>
+    </div>
+
+    <!-- 🤟 LIBRAS -->
+    <div class="card">
+        <h3>🤟 Acessibilidade</h3>
+
+        <button id="libras">ATIVAR LIBRAS</button>
+
+        <p style="font-size:16px; margin-top:10px;">
+            Para pessoas com dificuldade de leitura.
+        </p>
+    </div>
+
+</div>
+
+</body>
+
+<!-- VLibras oficial -->
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+    </div>
+</div>
+
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+</script>
+
+<!-- OCR -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<!-- seus scripts -->
+<script src="unidadesDispensadoras.js"></script>
+<script src="medicamentos.js"></script>
+<script src="app.js"></script>
+
+</html>
 </body>
 </html>
