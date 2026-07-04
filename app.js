@@ -1,84 +1,5 @@
-// ==========================
-// INICIALIZAÇÃO SEGURA
-// ==========================
+
 document.addEventListener("DOMContentLoaded", () => {
-
-
-// ==========================
-// BOTÃO CÂMERA
-// ==========================
-const btnCamera = document.getElementById("btnCamera");
-const upload = document.getElementById("upload");
-
-if (btnCamera && upload) {
-    btnCamera.onclick = () => {
-        upload.click();
-    };
-}
-
-
-// ==========================
-// OCR DA RECEITA
-// ==========================
-if (upload) {
-    upload.onchange = async (event) => {
-
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const resultadoOCR = document.getElementById("resultado");
-
-        if (resultadoOCR) {
-            resultadoOCR.innerText = "🔎 Lendo receita...";
-        }
-
-        const { data: { text } } = await Tesseract.recognize(file, "por");
-
-        if (resultadoOCR) {
-            resultadoOCR.innerText = text;
-        }
-
-        processarMedicamentos(text);
-    };
-}
-
-
-// ==========================
-// VOZ (RECONHECIMENTO)
-// ==========================
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-let recognition = null;
-
-if (SpeechRecognition) {
-    recognition = new SpeechRecognition();
-    recognition.lang = "pt-BR";
-
-    const btnVoz = document.getElementById("voz");
-
-    if (btnVoz) {
-        btnVoz.onclick = () => {
-            recognition.start();
-        };
-    }
-
-    recognition.onresult = (event) => {
-        const texto = event.results[0][0].transcript;
-        processarMedicamentos(texto);
-    };
-}
-
-
-// ==========================
-// LIBRAS (VLIBRAS)
-// ==========================
-const btnLibras = document.getElementById("libras");
-
-if (btnLibras) {
-    btnLibras.onclick = () => {
-        alert("🤟 VLibras ativado! Use o botão azul na tela.");
-    };
-}
 
 
 // ==========================
@@ -94,7 +15,81 @@ function normalizar(texto) {
 
 
 // ==========================
-// BUSCA INTELIGENTE (CORRIGIDA)
+// BOTÃO CÂMERA
+// ==========================
+const btnCamera = document.getElementById("btnCamera");
+const upload = document.getElementById("upload");
+
+if (btnCamera && upload) {
+    btnCamera.onclick = () => upload.click();
+}
+
+
+// ==========================
+// OCR DA RECEITA (ROBUSTO)
+// ==========================
+if (upload) {
+    upload.onchange = async (event) => {
+
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const resultadoOCR = document.getElementById("resultado");
+        if (resultadoOCR) resultadoOCR.innerText = "🔎 Lendo receita...";
+
+        try {
+            const { data: { text } } = await Tesseract.recognize(file, "por");
+
+            if (resultadoOCR) resultadoOCR.innerText = text;
+
+            processarMedicamentos(text);
+
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao ler a imagem da receita.");
+        }
+    };
+}
+
+
+// ==========================
+// VOZ
+// ==========================
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+let recognition = null;
+
+if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.lang = "pt-BR";
+
+    const btnVoz = document.getElementById("voz");
+
+    if (btnVoz) {
+        btnVoz.onclick = () => recognition.start();
+    }
+
+    recognition.onresult = (event) => {
+        const texto = event.results[0][0].transcript;
+        processarMedicamentos(texto);
+    };
+}
+
+
+// ==========================
+// LIBRAS
+// ==========================
+const btnLibras = document.getElementById("libras");
+
+if (btnLibras) {
+    btnLibras.onclick = () => {
+        alert("🤟 VLibras ativado! Use o botão azul na tela.");
+    };
+}
+
+
+// ==========================
+// BUSCA INTELIGENTE
 // ==========================
 function buscarMedicamentos(textoOCR) {
 
@@ -108,12 +103,16 @@ function buscarMedicamentos(textoOCR) {
 
         let encontrou = false;
 
-        // ✔ match direto
-        if (texto.includes(nome) || nome.includes(texto)) {
+        // ✔ MATCH MAIS FLEXÍVEL (resolve OCR + variações)
+        if (
+            texto.includes(nome) ||
+            nome.includes(texto) ||
+            texto.includes(nome.split(" ")[0])
+        ) {
             encontrou = true;
         }
 
-        // ✔ sinônimos
+        // ✔ SINÔNIMOS
         if (!encontrou && m.sinonimos) {
             encontrou = m.sinonimos.some(s => {
                 const sn = normalizar(s);
@@ -124,7 +123,6 @@ function buscarMedicamentos(textoOCR) {
         if (encontrou) {
             resultados.push(m);
         } else {
-            // ✔ tenta correção automática (OCR ruim)
             const corrigido = corrigirMedicamento(texto, medicamentos);
             if (corrigido && !resultados.includes(corrigido)) {
                 resultados.push(corrigido);
@@ -135,7 +133,11 @@ function buscarMedicamentos(textoOCR) {
     return resultados;
 }
 
-    function corrigirMedicamento(texto, lista) {
+
+// ==========================
+// CORREÇÃO AUTOMÁTICA (OCR RUIM)
+// ==========================
+function corrigirMedicamento(texto, lista) {
 
     const t = normalizar(texto);
 
@@ -146,14 +148,12 @@ function buscarMedicamentos(textoOCR) {
 
         const nome = normalizar(m.nome);
 
-        // score base: semelhança simples por inclusão
         let score = 0;
 
         if (nome.includes(t) || t.includes(nome)) {
             score += 5;
         }
 
-        // comparação por palavras
         const palavras = t.split(" ");
 
         palavras.forEach(p => {
@@ -168,9 +168,9 @@ function buscarMedicamentos(textoOCR) {
         }
     });
 
-    // só retorna se tiver confiança mínima
     return melhorScore >= 3 ? melhorMatch : null;
 }
+
 
 // ==========================
 // CONSULTA MANUAL
@@ -189,10 +189,9 @@ window.consultarMedicamento = function () {
 
 
 // ==========================
-// FALA (SÍNTESE)
+// FALA
 // ==========================
 function falar(texto) {
-
     const speech = new SpeechSynthesisUtterance(texto);
     speech.lang = "pt-BR";
     speechSynthesis.speak(speech);
@@ -212,7 +211,7 @@ function processarMedicamentos(textoOCR) {
 
     if (encontrados.length === 0) {
 
-        const msg = "Nenhum medicamento identificado na lista da rede municipal.";
+        const msg = "Nenhum medicamento identificado na rede municipal.";
 
         div.innerHTML = msg;
         falar(msg);
@@ -220,14 +219,11 @@ function processarMedicamentos(textoOCR) {
         return;
     }
 
-    div.innerHTML = "<h3>💊 Medicamentos encontrados:</h3>";
+    div.innerHTML = "<h3>💊 Medicamentos encontrados</h3>";
 
     encontrados.forEach(m => {
 
-        const msg = `
-${m.nome} - ${m.dosagem}.
-Medicamento disponível na rede municipal.
-        `;
+        const msg = `${m.nome} - ${m.dosagem}. Disponível no SUS.`;
 
         div.innerHTML += `
             <div style="padding:10px;border-bottom:1px solid #ccc;">
@@ -255,14 +251,13 @@ Medicamento disponível na rede municipal.
 window.mostrarUnidades = function () {
 
     const div = document.getElementById("listaUnidades");
-
     if (!div) return;
 
     let html = "<h3>🏥 Unidades do SUS em Assis-SP</h3>";
 
     unidadesDispensadoras.forEach(u => {
         html += `
-            <div style="margin-bottom:10px; padding:10px; border:1px solid #ccc;">
+            <div style="margin-bottom:10px;padding:10px;border:1px solid #ccc;">
                 📍 <b>${u.nome}</b><br>
                 🏠 ${u.endereco}<br>
                 📞 ${u.telefone || ""}<br>
