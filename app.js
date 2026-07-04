@@ -93,6 +93,24 @@ function buscarMedicamentos(textoOCR) {
     });
 }
 
+function consultarMedicamento() {
+
+    const input = document.getElementById("inputMedicamento");
+
+    if (!input) {
+        alert("Campo de medicamento não encontrado");
+        return;
+    }
+
+    const texto = input.value;
+
+    if (!texto || texto.trim() === "") {
+        alert("Digite um medicamento");
+        return;
+    }
+
+    processarMedicamentos(texto);
+}
 
 // ==========================
 // FALA
