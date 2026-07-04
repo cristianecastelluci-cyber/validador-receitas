@@ -22,31 +22,48 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     // FALA GLOBAL (TTS)
     // ==========================
-    window.falar = function (texto) {
+   window.falar = function (texto) {
     if (!texto) return;
 
-    // 🔇 limpa falas anteriores (evita travar o motor)
+    // cancela qualquer fala travada
     speechSynthesis.cancel();
 
-    const u = new SpeechSynthesisUtterance(texto);
+    const utterance = new SpeechSynthesisUtterance(texto);
 
-    u.lang = "pt-BR";
-    u.rate = 1;
-    u.pitch = 1;
-    u.volume = 1;
+    utterance.lang = "pt-BR";
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    utterance.volume = 1;
 
-    // 🔥 força reativação do motor de voz
+    const falarComVoz = () => {
+        const voices = speechSynthesis.getVoices();
+
+        // tenta achar voz pt-BR primeiro
+        let voice =
+            voices.find(v => v.lang === "pt-BR") ||
+            voices.find(v => v.lang.includes("pt")) ||
+            voices[0];
+
+        if (voice) {
+            utterance.voice = voice;
+        }
+
+        speechSynthesis.speak(utterance);
+    };
+
+    // 🔥 garante carregamento das vozes
     const voices = speechSynthesis.getVoices();
 
-    if (voices.length > 0) {
-        const ptVoice = voices.find(v => v.lang.includes("pt"));
-        if (ptVoice) u.voice = ptVoice;
+    if (voices.length === 0) {
+        speechSynthesis.onvoiceschanged = () => {
+            falarComVoz();
+        };
+    } else {
+        falarComVoz();
     }
 
-    u.onstart = () => console.log("🔊 falando:", texto);
-    u.onerror = (e) => console.error("Erro voz:", e);
-
-    speechSynthesis.speak(u);
+    utterance.onstart = () => console.log("🔊 falando:", texto);
+    utterance.onerror = (e) => console.error("Erro voz:", e);
 };
 
     // ==========================
