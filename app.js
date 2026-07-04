@@ -1,3 +1,5 @@
+window.medicamentos = window.medicamentos || [];
+
 document.addEventListener("DOMContentLoaded", () => {
 
 // ==========================
