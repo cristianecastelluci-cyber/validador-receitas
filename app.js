@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // VOZ
+    // VOZ (FALAR)
     // ==========================
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -79,14 +79,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (btnLibras) {
         btnLibras.onclick = () => {
-            alert("🤟 VLibras ativado");
             const btn = document.querySelector("[vw-access-button]");
             if (btn) btn.click();
         };
     }
 
     // ==========================
-    // BUSCA INTELIGENTE (CORRIGIDA)
+    // FUNÇÃO GLOBAL DE FALA (IMPORTANTE)
+    // ==========================
+    window.falar = function (texto) {
+        const u = new SpeechSynthesisUtterance(texto);
+        u.lang = "pt-BR";
+        speechSynthesis.speak(u);
+    };
+
+    // ==========================
+    // BUSCA INTELIGENTE
     // ==========================
     function buscar(textoOCR) {
 
@@ -105,7 +113,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 nome.includes(t) ||
                 t.includes(nome.split(" ")[0]);
 
-            // sinônimos
             if (!ok && m.sinonimos) {
                 ok = m.sinonimos.some(s =>
                     t.includes(normalizar(s))
@@ -114,7 +121,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (ok) {
 
-                // 🔥 CHAVE REAL (evita duplicata corretamente)
                 const chave = normalizar(m.nome + m.forma + m.dosagem);
 
                 if (!usados.has(chave)) {
@@ -128,60 +134,54 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // FALA
-    // ==========================
-    window.falar = function (texto) {
-    const u = new SpeechSynthesisUtterance(texto);
-    u.lang = "pt-BR";
-    speechSynthesis.speak(u);
-};
-    // ==========================
     // PROCESSAMENTO
     // ==========================
     function processar(textoOCR) {
 
-    const div = document.getElementById("resultadoMedicamento");
-    if (!div) return;
+        const div = document.getElementById("resultadoMedicamento");
+        if (!div) return;
 
-    const encontrados = buscar(textoOCR);
+        const encontrados = buscar(textoOCR);
 
-    if (encontrados.length === 0) {
-        div.innerHTML = "Nenhum medicamento identificado na rede municipal.";
-        return;
-    }
+        if (encontrados.length === 0) {
+            div.innerHTML = "Nenhum medicamento identificado na rede municipal.";
+            return;
+        }
 
-    div.innerHTML = "<h3>💊 Medicamentos encontrados</h3>";
+        div.innerHTML = "<h3>💊 Medicamentos encontrados</h3>";
 
-    for (const m of encontrados) {
+        for (const m of encontrados) {
 
-        const textoFala = `${m.nome} ${m.dosagem || ""}. Disponível no SUS.`;
+            const textoFala = `${m.nome} ${m.dosagem || ""}. Disponível no SUS.`;
 
-        div.innerHTML += `
-            <div style="padding:10px;border-bottom:1px solid #ddd">
+            div.innerHTML += `
+                <div style="padding:10px;border-bottom:1px solid #ddd">
 
-                <b>${m.nome}</b><br>
-                ${m.forma || ""} - ${m.dosagem || ""}<br><br>
+                    <b>${m.nome}</b><br>
+                    ${m.forma || ""} - ${m.dosagem || ""}<br><br>
 
-                <span style="color:green;font-weight:bold;">
-                    ✔ Disponível no SUS
-                </span><br>
+                    <span style="color:green;font-weight:bold;">
+                        ✔ Disponível no SUS
+                    </span><br>
 
-                <a href="https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponiveis/"
-                   target="_blank">
-                   Ver estoque oficial
-                </a>
+                    <a href="https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponiveis/"
+                       target="_blank">
+                       Ver estoque oficial
+                    </a>
 
-                <br><br>
+                    <br><br>
 
-                <button onclick="falar('${textoFala.replace(/'/g, "\\'")}')"
+                    <!-- BOTÃO OUVIR (CORRETO) -->
+                    <button onclick="window.falar(${JSON.stringify(textoFala)})"
                         style="margin-top:8px;padding:5px 10px;cursor:pointer;">
-                    🔊 Ouvir
-                </button>
+                        🔊 Ouvir
+                    </button>
 
-            </div>
-        `;
+                </div>
+            `;
+        }
     }
-}
+
     // ==========================
     // CONSULTA MANUAL
     // ==========================
