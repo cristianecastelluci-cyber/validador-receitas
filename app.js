@@ -171,70 +171,162 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     // PROCESSAMENTO
     // ==========================
-    function processar(textoOCR) {
 
-        const div = document.getElementById("resultadoMedicamento");
-        if (!div) return;
+function processar(textoOCR) {
 
-        const encontrados = buscar(textoOCR);
+    const div = document.getElementById("resultadoMedicamento");
+    if (!div) return;
 
-        if (encontrados.length === 0) {
+    const encontrados = buscar(textoOCR);
+
+    // ==========================
+    // NENHUM MEDICAMENTO ENCONTRADO
+    // ==========================
+    if (encontrados.length === 0) {
+
+        div.innerHTML = `
+            <div style="
+                margin:15px 0;
+                padding:18px;
+                background:#ffebee;
+                border-left:8px solid #d32f2f;
+                border-radius:10px;
+                text-align:center;
+            ">
+
+                <div style="font-size:42px;">
+                    😞 👎
+                </div>
+
+                <div style="
+                    color:#c62828;
+                    font-size:20px;
+                    font-weight:bold;
+                    margin-top:10px;
+                ">
+                    Nenhum medicamento identificado na rede municipal.
+                </div>
+
+            </div>
+        `;
+
+        return;
+    }
+
+    // ==========================
+    // TÍTULO
+    // ==========================
     div.innerHTML = `
-        <div style="
-            color:#d32f2f;
-            font-weight:bold;
-            font-size:18px;
-            text-align:center;
-            padding:15px;
-        ">
-            😞 👎 Nenhum medicamento identificado na rede municipal.
-        </div>
+        <h3 style="color:#1565c0;">
+            😊 Resultado da consulta
+        </h3>
     `;
-    return;
-}
 
-        div.innerHTML = "<h3>💊 Medicamentos encontrados</h3>";
+    // ==========================
+    // MEDICAMENTOS
+    // ==========================
+    for (const m of encontrados) {
 
-        for (const m of encontrados) {
+        const textoFala =
+            `${m.nome} ${m.dosagem || ""}. ` +
+            `Este medicamento faz parte da relação de medicamentos de Assis-SP.`;
 
-            const textoFala = `${m.nome} ${m.dosagem || ""}. Este medicamento faz parte da relação de medicamentos de Assis-SP.`;
+        div.innerHTML += `
 
-            div.innerHTML += `
-                <div style="padding:10px;border-bottom:1px solid #ddd">
+            <div style="
+                background:#ffffff;
+                border:1px solid #dcdcdc;
+                border-radius:12px;
+                padding:15px;
+                margin-bottom:15px;
+                box-shadow:0 2px 6px rgba(0,0,0,.08);
+            ">
 
-                    <b>${m.nome}</b><br>
-                    ${m.forma || ""} - ${m.dosagem || ""}<br><br>
+                <!-- Nome -->
+                <div style="
+                    font-size:22px;
+                    font-weight:bold;
+                    color:#0d47a1;
+                ">
+                    💊 ${m.nome}
+                </div>
 
-                    <span style="
-    color:#1b5e20;
-    font-weight:bold;
-    font-size:18px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-">
-    <span style="font-size:30px;">😊👍</span>
-    <span>Este medicamento faz parte da relação de medicamentos de Assis-SP.</span>
-</span><br>
+                <!-- Forma e dosagem -->
+                <div style="
+                    margin-top:8px;
+                    font-size:16px;
+                ">
+                    📦 <b>Forma:</b> ${m.forma || "-"}<br>
+                    ⚖️ <b>Dosagem:</b> ${m.dosagem || "-"}
+                </div>
+
+                <!-- Situação -->
+                <div style="
+                    margin-top:15px;
+                    padding:15px;
+                    background:#e8f5e9;
+                    border-left:7px solid #2e7d32;
+                    border-radius:8px;
+                    color:#1b5e20;
+                    font-weight:bold;
+                    line-height:1.6;
+                ">
+
+                    <div style="font-size:40px;">
+                        😊 👍
+                    </div>
+
+                    Este medicamento faz parte da relação de medicamentos de Assis-SP.
+
+                </div>
+
+                <!-- Link -->
+                <div style="margin-top:15px;">
 
                     <a href="https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponiveis/"
-                       target="_blank">
-                       Ver estoque oficial
+                       target="_blank"
+                       style="
+                           display:inline-block;
+                           background:#1976d2;
+                           color:white;
+                           text-decoration:none;
+                           padding:10px 16px;
+                           border-radius:8px;
+                           font-weight:bold;
+                       ">
+                        📍 Consultar disponibilidade nas unidades de saúde
                     </a>
 
-                    <br><br>
+                </div>
 
-                    <button class="btn-ouvir"
+                <!-- Botão ouvir -->
+                <div style="margin-top:15px;">
+
+                    <button
+                        class="btn-ouvir"
                         data-text='${JSON.stringify(textoFala)}'
-                        style="margin-top:8px;padding:6px 10px;cursor:pointer;border-radius:6px;">
-                        🔊 Ouvir
+                        style="
+                            padding:10px 16px;
+                            border:none;
+                            border-radius:8px;
+                            background:#43a047;
+                            color:white;
+                            cursor:pointer;
+                            font-size:15px;
+                            font-weight:bold;
+                        ">
+
+                        🔊 Ouvir resposta
+
                     </button>
 
                 </div>
-            `;
-        }
-    }
 
+            </div>
+
+        `;
+    }
+}
     // ==========================
     // BOTÃO OUVIR (ROBUSTO)
     // ==========================
