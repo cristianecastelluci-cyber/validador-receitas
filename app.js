@@ -94,7 +94,7 @@ if (btnLibras) {
 // ==========================
 // BUSCA INTELIGENTE
 // ==========================
-function buscarMedicamentos(textoOCR) {
+function buscarMedicamentosComBase(textoOCR) {
 
     const texto = normalizar(textoOCR);
 
@@ -123,7 +123,7 @@ function buscarMedicamentos(textoOCR) {
             });
         }
 
-        // ✔ correção automática
+        // ✔ correção simples (amoxilina etc)
         if (!encontrou) {
             const corrigido = corrigirMedicamento(texto, medicamentos);
             if (corrigido) {
@@ -132,7 +132,7 @@ function buscarMedicamentos(textoOCR) {
             }
         }
 
-        // 🔥 CHAVE CANÔNICA (resolve duplicação real)
+        // 🔥 EVITA DUPLICAÇÃO REAL
         if (encontrou) {
 
             const chave = chaveMedicamento(m);
@@ -145,6 +145,7 @@ function buscarMedicamentos(textoOCR) {
     });
 
     return resultados;
+}
 }
 
 // ==========================
