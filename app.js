@@ -1,7 +1,15 @@
+
+// ==========================
+// BOTÃO CÂMERA
+// ==========================
 document.getElementById("btnCamera").onclick = () => {
     document.getElementById("upload").click();
 };
 
+
+// ==========================
+// OCR DA RECEITA
+// ==========================
 document.getElementById("upload").onchange = async (event) => {
 
     const file = event.target.files[0];
@@ -23,9 +31,27 @@ document.getElementById("upload").onchange = async (event) => {
 };
 
 
-// =============================
+// ==========================
+// VOZ (RECONHECIMENTO)
+// ==========================
+const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+recognition.lang = "pt-BR";
+
+document.getElementById("voz").onclick = () => {
+    recognition.start();
+};
+
+recognition.onresult = (event) => {
+
+    const texto = event.results[0][0].transcript;
+
+    processarMedicamentos(texto);
+};
+
+
+// ==========================
 // NORMALIZAÇÃO
-// =============================
+// ==========================
 function normalizar(texto) {
     return texto
         .toLowerCase()
@@ -35,9 +61,9 @@ function normalizar(texto) {
 }
 
 
-// =============================
+// ==========================
 // BUSCA MEDICAMENTOS
-// =============================
+// ==========================
 function buscarMedicamentos(textoOCR) {
 
     const texto = normalizar(textoOCR);
@@ -57,9 +83,20 @@ function buscarMedicamentos(textoOCR) {
 }
 
 
-// =============================
+// ==========================
+// FALA (SÍNTESE DE VOZ)
+// ==========================
+function falar(texto) {
+
+    const speech = new SpeechSynthesisUtterance(texto);
+    speech.lang = "pt-BR";
+    speechSynthesis.speak(speech);
+}
+
+
+// ==========================
 // PROCESSAMENTO PRINCIPAL
-// =============================
+// ==========================
 function processarMedicamentos(textoOCR) {
 
     const encontrados = buscarMedicamentos(textoOCR);
@@ -67,13 +104,25 @@ function processarMedicamentos(textoOCR) {
     const div = document.getElementById("resultadoMedicamento");
 
     if (encontrados.length === 0) {
-        div.innerHTML = "⚠️ Nenhum medicamento identificado na sua lista.";
+
+        const msg = "Nenhum medicamento identificado na lista da rede municipal.";
+
+        div.innerHTML = msg;
+        falar(msg);
+
         return;
     }
 
-    div.innerHTML = "<h3>💊 Medicamentos identificados:</h3>";
+    div.innerHTML = "<h3>💊 Medicamentos encontrados:</h3>";
 
     encontrados.forEach(m => {
+
+        const msg = `
+${m.nome} - ${m.dosagem}.
+Medicamento disponível na rede municipal.
+Verifique o estoque atual em cada unidade aqui:
+https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponiveis/
+        `;
 
         div.innerHTML += `
             <div style="padding:10px; border-bottom:1px solid #ccc;">
@@ -81,25 +130,26 @@ function processarMedicamentos(textoOCR) {
                 ${m.forma || ""} - ${m.dosagem || ""}<br><br>
 
                 <span style="color:green;">
-                    ✔ Medicamento disponível na rede municipal.
+                    ✔ Medicamento disponível na rede municipal
                 </span><br>
 
-                📌 Verifique o estoque atual em cada unidade aqui:<br>
                 <a href="https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponiveis/" target="_blank">
-                    Acessar lista oficial da Prefeitura
+                    Ver estoque oficial
                 </a>
             </div>
         `;
+
+        falar(msg);
     });
 }
 
 
-// =============================
-// UNIDADES DISPENSADORAS
-// =============================
+// ==========================
+// UNIDADES SUS
+// ==========================
 function mostrarUnidades() {
 
-    const div = document.getElementById("resultado");
+    const div = document.getElementById("listaUnidades");
 
     let html = "<hr><h3>🏥 Unidades do SUS em Assis-SP</h3>";
 
