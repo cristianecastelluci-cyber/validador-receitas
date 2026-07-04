@@ -1,3 +1,4 @@
+document.addEventListener("DOMContentLoaded", () => {
 
 // ==========================
 // BOTÃO CÂMERA
@@ -8,7 +9,7 @@ document.getElementById("btnCamera").onclick = () => {
 
 
 // ==========================
-// OCR DA RECEITA
+// OCR
 // ==========================
 document.getElementById("upload").onchange = async (event) => {
 
@@ -19,10 +20,7 @@ document.getElementById("upload").onchange = async (event) => {
 
     resultadoOCR.innerText = "🔎 Lendo receita...";
 
-    const { data: { text } } = await Tesseract.recognize(
-        file,
-        "por"
-    );
+    const { data: { text } } = await Tesseract.recognize(file, "por");
 
     resultadoOCR.innerText = text;
 
@@ -31,7 +29,7 @@ document.getElementById("upload").onchange = async (event) => {
 
 
 // ==========================
-// VOZ (RECONHECIMENTO)
+// VOZ
 // ==========================
 const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
 recognition.lang = "pt-BR";
@@ -41,22 +39,16 @@ document.getElementById("voz").onclick = () => {
 };
 
 recognition.onresult = (event) => {
-
     const texto = event.results[0][0].transcript;
-
     processarMedicamentos(texto);
 };
 
 
 // ==========================
-// LIBRAS (CORRIGIDO)
+// LIBRAS
 // ==========================
 document.getElementById("libras").onclick = () => {
-
-    alert("🤟 VLibras ativado! Use o botão azul na tela para tradução em Libras.");
-
-    const btn = document.querySelector('[vw-access-button]');
-    if (btn) btn.click();
+    alert("🤟 VLibras ativado! Use o botão azul na tela.");
 };
 
 
@@ -73,7 +65,7 @@ function normalizar(texto) {
 
 
 // ==========================
-// BUSCA MEDICAMENTOS
+// BUSCA
 // ==========================
 function buscarMedicamentos(textoOCR) {
 
@@ -81,42 +73,37 @@ function buscarMedicamentos(textoOCR) {
 
     return medicamentos.filter(m => {
 
-        if (texto.includes(normalizar(m.nome)))
-            return true;
+        if (texto.includes(normalizar(m.nome))) return true;
 
         if (m.sinonimos?.some(s =>
             texto.includes(normalizar(s))
-        ))
-            return true;
+        )) return true;
 
         return false;
     });
 }
 
-function consultarMedicamento() {
+
+// ==========================
+// CONSULTA MANUAL
+// ==========================
+window.consultarMedicamento = function () {
 
     const input = document.getElementById("inputMedicamento");
 
-    if (!input) {
-        alert("Campo de medicamento não encontrado");
-        return;
-    }
-
-    const texto = input.value;
-
-    if (!texto || texto.trim() === "") {
+    if (!input || !input.value.trim()) {
         alert("Digite um medicamento");
         return;
     }
 
-    processarMedicamentos(texto);
-}
+    processarMedicamentos(input.value);
+};
+
 
 // ==========================
 // FALA
 // ==========================
 function falar(texto) {
-
     const speech = new SpeechSynthesisUtterance(texto);
     speech.lang = "pt-BR";
     speechSynthesis.speak(speech);
@@ -124,7 +111,7 @@ function falar(texto) {
 
 
 // ==========================
-// PROCESSAMENTO PRINCIPAL
+// PROCESSAMENTO
 // ==========================
 function processarMedicamentos(textoOCR) {
 
@@ -132,13 +119,10 @@ function processarMedicamentos(textoOCR) {
 
     const div = document.getElementById("resultadoMedicamento");
 
-    if (encontrados.length === 0) {
-
-        const msg = "Nenhum medicamento identificado na lista da rede municipal.";
-
+    if (!encontrados.length) {
+        const msg = "Nenhum medicamento identificado na rede municipal.";
         div.innerHTML = msg;
         falar(msg);
-
         return;
     }
 
@@ -149,18 +133,14 @@ function processarMedicamentos(textoOCR) {
         const msg = `
 ${m.nome} - ${m.dosagem}.
 Medicamento disponível na rede municipal.
-Verifique o estoque em:
-https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponiveis/
-        `;
+`;
 
         div.innerHTML += `
-            <div style="padding:10px; border-bottom:1px solid #ccc;">
+            <div style="padding:10px;border-bottom:1px solid #ccc;">
                 <b>${m.nome}</b><br>
                 ${m.forma || ""} - ${m.dosagem || ""}<br><br>
 
-                <span style="color:green;">
-                    ✔ Medicamento disponível na rede municipal
-                </span><br>
+                <span style="color:green;">✔ Disponível no SUS</span><br>
 
                 <a href="https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponiveis/" target="_blank">
                     Ver estoque oficial
@@ -174,25 +154,25 @@ https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponive
 
 
 // ==========================
-// UNIDADES SUS
+// UNIDADES
 // ==========================
-function mostrarUnidades() {
+window.mostrarUnidades = function () {
 
     const div = document.getElementById("listaUnidades");
 
-    let html = "<hr><h3>🏥 Unidades do SUS em Assis-SP</h3>";
+    let html = "<h3>🏥 Unidades do SUS</h3>";
 
     unidadesDispensadoras.forEach(u => {
         html += `
-            <div style="margin-bottom:10px; padding:10px; border:1px solid #ccc;">
+            <div style="margin-bottom:10px;padding:10px;border:1px solid #ccc;">
                 📍 <b>${u.nome}</b><br>
                 🏠 ${u.endereco}<br>
-                📞 ${u.telefone}<br>
-                🌍 Região: ${u.regiao}<br>
-                💊 Componente: ${u.componente}
+                📞 ${u.telefone}
             </div>
         `;
     });
 
     div.innerHTML = html;
-}
+};
+
+});
