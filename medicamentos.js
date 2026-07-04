@@ -1,21 +1,4 @@
-// ==========================
-// FUNÇÃO AUXILIAR (base)
-// ==========================
-function gerarBase(nome) {
-    return nome
-        .toLowerCase()
-        .split("+")[0]
-        .split(",")[0]
-        .split(" ")[0]
-        .trim();
-},
-
-const medicamentosComBase = medicamentos.map(m => ({
-    ...m,
-    base: gerarBase(m.nome)
-}));
-
-const medicamentos = [
+window.medicamentos = [
 
 {
     nome: "Aciclovir",
