@@ -171,51 +171,107 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     // PROCESSAMENTO
     // ==========================
-    function processar(textoOCR) {
+   function processar(textoOCR) {
 
-        const div = document.getElementById("resultadoMedicamento");
-        if (!div) return;
+    const div = document.getElementById("resultadoMedicamento");
+    if (!div) return;
 
-        const encontrados = buscar(textoOCR);
+    const encontrados = buscar(textoOCR);
 
-        if (encontrados.length === 0) {
-            div.innerHTML = "Nenhum medicamento identificado na rede municipal.";
-            return;
+    if (encontrados.length === 0) {
+        div.innerHTML = "❌ Nenhum medicamento identificado na rede municipal.";
+        return;
+    }
+
+    div.innerHTML = "💊 <h3>Medicamentos encontrados</h3>";
+
+    for (const m of encontrados) {
+
+        const textoFala = `${m.nome} ${m.dosagem || ""}. Disponível no SUS.`;
+
+        // ==========================
+        // STATUS VISUAL (EMOJIS)
+        // ==========================
+        let statusIcon = "👍";
+        let statusLabel = "Disponível no SUS";
+        let statusColor = "green";
+
+        if (m.status === "indisponivel") {
+            statusIcon = "👎";
+            statusLabel = "Indisponível";
+            statusColor = "red";
         }
 
-        div.innerHTML = "<h3>💊 Medicamentos encontrados</h3>";
+        if (m.status === "estoque_baixo") {
+            statusIcon = "⚠️";
+            statusLabel = "Estoque baixo";
+            statusColor = "orange";
+        }
 
-        for (const m of encontrados) {
+        div.innerHTML += `
+            <div style="
+                padding:12px;
+                margin:10px 0;
+                border-radius:10px;
+                border:1px solid #ddd;
+                background:#fafafa;
+            ">
 
-            const textoFala = `${m.nome} ${m.dosagem || ""}. Disponível no SUS.`;
+                <!-- TÍTULO -->
+                <div style="font-size:18px;font-weight:bold;">
+                    💊 ${m.nome}
+                </div>
 
-            div.innerHTML += `
-                <div style="padding:10px;border-bottom:1px solid #ddd">
+                <!-- DETALHES -->
+                <div style="margin-top:5px;">
+                    📦 ${m.forma || "—"}<br>
+                    ⚖️ ${m.dosagem || "—"}
+                </div>
 
-                    <b>${m.nome}</b><br>
-                    ${m.forma || ""} - ${m.dosagem || ""}<br><br>
+                <!-- STATUS -->
+                <div style="
+                    margin-top:10px;
+                    font-weight:bold;
+                    color:${statusColor};
+                    font-size:15px;
+                ">
+                    ${statusIcon} ${statusLabel}
+                </div>
 
-                    <span style="color:green;font-weight:bold;">
-                        ✔ Disponível no SUS
-                    </span><br>
+                <!-- AÇÕES -->
+                <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
 
                     <a href="https://www.assis.sp.gov.br/portal/secretarias-paginas/19/medicamentos-disponiveis/"
-                       target="_blank">
-                       Ver estoque oficial
+                       target="_blank"
+                       style="
+                           padding:6px 10px;
+                           background:#1976d2;
+                           color:white;
+                           border-radius:6px;
+                           text-decoration:none;
+                       ">
+                        📍 Estoque
                     </a>
-
-                    <br><br>
 
                     <button class="btn-ouvir"
                         data-text='${JSON.stringify(textoFala)}'
-                        style="margin-top:8px;padding:6px 10px;cursor:pointer;border-radius:6px;">
+                        style="
+                            padding:6px 10px;
+                            border-radius:6px;
+                            border:none;
+                            background:#4caf50;
+                            color:white;
+                            cursor:pointer;
+                        ">
                         🔊 Ouvir
                     </button>
 
                 </div>
-            `;
-        }
+
+            </div>
+        `;
     }
+}
 
     // ==========================
     // BOTÃO OUVIR (ROBUSTO)
