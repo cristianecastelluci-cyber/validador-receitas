@@ -12,7 +12,7 @@ window.medicamentos = window.medicamentos || [];
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    // ==========================
+    // =========================
     // NORMALIZAÇÃO
     // ==========================
     function normalizar(texto) {
