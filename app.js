@@ -29,7 +29,7 @@ document.getElementById("upload").onchange = async (event) => {
 };
 function mostrarUnidades() {
 
-    let html = "<hr><h3>🏥 Unidades de Dispensação em Assis-SP</h3>";
+    let html = "<hr><h3>🏥 Unidades do SUS em Assis-SP</h3>";
 
     unidadesDispensadoras.forEach(u => {
         html += `
@@ -37,7 +37,8 @@ function mostrarUnidades() {
                 📍 <b>${u.nome}</b><br>
                 🏠 ${u.endereco}<br>
                 📞 ${u.telefone}<br>
-                🌍 Região: ${u.regiao}
+                🌍 Região: ${u.regiao}<br>
+                💊 Componente: ${u.componente}
             </div>
         `;
     });
