@@ -4,43 +4,52 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FARMASSIS IA</title>
+
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <header>
-<h1>💙 FARMASSIS IA</h1>
-<p>Assistente Inteligente do SUS</p>
+    <h1>💙 FARMASSIS IA</h1>
+    <p>Assistente Inteligente do SUS</p>
 </header>
 
 <main>
 
-<div style="margin:20px 0;">
+    <div style="margin:20px 0;">
 
-<input type="file" id="upload" accept="image/*" capture="environment" style="display:none;">
+        <input type="file" id="upload" accept="image/*" capture="environment" style="display:none;">
 
-<input type="file" id="upload" accept="image/*" capture="environment" style="display:none;">
+        <button id="btnCamera">📷 TIRAR FOTO DA RECEITA</button>
 
-<button id="btnCamera">📷 TIRAR FOTO DA RECEITA</button>
+        <p id="resultado"></p>
 
-<p id="resultado"></p>
+    </div>
 
-</div>
-<p id="resultado"></p>
-<button id="medicamento">💊 Consultar Medicamento</button>
-<button id="voz">🎤 Falar com Assistente</button>
-<button id="libras">🤟 Libras</button>
-<button id="sobre">ℹ️ Sobre</button>
+    <button id="medicamento">💊 Consultar Medicamento</button>
+    <button id="voz">🎤 Falar com Assistente</button>
+    <button id="libras">🤟 Libras</button>
+    <button id="sobre">ℹ️ Sobre</button>
+
+    <!-- BOTÃO CORRETO -->
+    <button onclick="mostrarUnidades()">
+        Ver unidades do SUS
+    </button>
+
+    <!-- onde o JS pode renderizar conteúdo -->
+    <div id="listaUnidades"></div>
 
 </main>
 
+<!-- LIB OCR -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<!-- SEU DADOS (IMPORTANTE VIR PRIMEIRO) -->
+<script src="unidadesDispensadoras.js"></script>
+
+<!-- SUA LÓGICA -->
 <script src="app.js"></script>
 
 </body>
 </html>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
-<button onclick="mostrarUnidades()">
-Ver unidades do SUS
-</button>
