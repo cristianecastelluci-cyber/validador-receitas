@@ -13,7 +13,10 @@ function normalizar(texto) {
         .trim();
 }
 
-
+function chaveMedicamento(m) {
+    return normalizar(m.nome).split(" ")[0]; 
+}
+    
 // ==========================
 // BOTÃO CÂMERA
 // ==========================
@@ -96,12 +99,11 @@ function buscarMedicamentos(textoOCR) {
     const texto = normalizar(textoOCR);
 
     const resultados = [];
-    const jaAdicionados = new Set(); // 🔥 controle anti-duplicata
+    const jaAdicionados = new Set();
 
     medicamentos.forEach(m => {
 
         const nome = normalizar(m.nome);
-
         let encontrou = false;
 
         // ✔ match direto
@@ -121,7 +123,7 @@ function buscarMedicamentos(textoOCR) {
             });
         }
 
-        // ✔ CORREÇÃO AUTOMÁTICA
+        // ✔ correção automática
         if (!encontrou) {
             const corrigido = corrigirMedicamento(texto, medicamentos);
             if (corrigido) {
@@ -130,10 +132,10 @@ function buscarMedicamentos(textoOCR) {
             }
         }
 
-        // ✔ ADICIONA SEM DUPLICAR (REGRA FINAL)
+        // 🔥 CHAVE CANÔNICA (resolve duplicação real)
         if (encontrou) {
 
-            const chave = normalizar(m.nome);
+            const chave = chaveMedicamento(m);
 
             if (!jaAdicionados.has(chave)) {
                 jaAdicionados.add(chave);
