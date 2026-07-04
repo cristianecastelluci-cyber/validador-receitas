@@ -1,3 +1,14 @@
+// ==========================
+// FUNÇÃO AUXILIAR (base)
+// ==========================
+function gerarBase(nome) {
+    return nome
+        .toLowerCase()
+        .split("+")[0]
+        .split(",")[0]
+        .split(" ")[0]
+        .trim();
+}
 const medicamentos = [
 
 {
