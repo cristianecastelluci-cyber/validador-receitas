@@ -2,7 +2,6 @@
 // SEGURANÇA GLOBAL
 // ==========================
 window.medicamentos = window.medicamentos || [];
-window.unidadesDispensadoras = window.unidadesDispensadoras || [];
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -18,13 +17,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // CHAVE ÚNICA (ANTI DUPLICAÇÃO REAL)
+    // CHAVE ÚNICA (PROFISSIONAL)
     // ==========================
-    function chave(m) {
-        return normalizar(m.nome)
-            .split(",")[0]
-            .split("+")[0]
-            .trim();
+    function chaveUnica(m) {
+        return (
+            normalizar(m.nome) + "|" +
+            normalizar(m.forma || "") + "|" +
+            normalizar(m.dosagem || "")
+        );
     }
 
     // ==========================
@@ -69,7 +69,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (SpeechRecognition) {
-
         const recognition = new SpeechRecognition();
         recognition.lang = "pt-BR";
 
@@ -92,79 +91,49 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnLibras) {
         btnLibras.onclick = () => {
             alert("🤟 VLibras ativado");
+            const btn = document.querySelector("[vw-access-button]");
+            if (btn) btn.click();
         };
     }
 
     // ==========================
-    // BUSCA INTELIGENTE (SEM DUPLICAÇÃO REAL)
+    // BUSCA INTELIGENTE (OCR FRIENDLY)
     // ==========================
     function buscar(textoOCR) {
 
-    const t = normalizar(textoOCR);
-    const lista = window.medicamentos || [];
+        const t = normalizar(textoOCR);
+        const lista = window.medicamentos || [];
 
-    const encontrados = [];
-    const usados = new Set();
+        const encontrados = [];
+        const usados = new Set();
 
-    for (const m of lista) {
+        for (const m of lista) {
 
-        const nome = normalizar(m.nome);
+            const nome = normalizar(m.nome);
 
-        // MATCH MAIS INTELIGENTE (profissional)
-        let ok = false;
+            let ok = false;
 
-        // 1. nome principal
-        if (t.includes(nome) || nome.includes(t)) {
-            ok = true;
-        }
-
-        // 2. pega primeira palavra (melhor para OCR)
-        const primeiraPalavra = nome.split(" ")[0];
-        if (t.includes(primeiraPalavra)) {
-            ok = true;
-        }
-
-        // 3. sinônimos (melhorado)
-        if (!ok && m.sinonimos) {
-            ok = m.sinonimos.some(s =>
-                t.includes(normalizar(s)) ||
-                normalizar(s).includes(t)
-            );
-        }
-
-        if (ok) {
-
-            const k = nome.split(" ")[0]; // mais confiável que chave()
-            
-            if (!usados.has(k)) {
-                usados.add(k);
-                encontrados.push(m);
+            // 1. match direto
+            if (t.includes(nome) || nome.includes(t)) {
+                ok = true;
             }
-        }
-    }
 
-    return encontrados;
-}
+            // 2. primeira palavra (melhora OCR)
+            const primeira = nome.split(" ")[0];
+            if (t.includes(primeira)) {
+                ok = true;
+            }
 
-            // ==========================
-            // SINÔNIMOS
-            // ==========================
+            // 3. sinônimos
             if (!ok && m.sinonimos) {
-                for (const s of m.sinonimos) {
-                    const sn = normalizar(s);
-                    if (t.includes(sn) || sn.includes(t)) {
-                        ok = true;
-                        break;
-                    }
-                }
+                ok = m.sinonimos.some(s =>
+                    t.includes(normalizar(s))
+                );
             }
 
-            // ==========================
-            // ANTI DUPLICAÇÃO REAL (LOSARTANA etc)
-            // ==========================
             if (ok) {
 
-                const k = chave(m);
+                const k = chaveUnica(m);
 
                 if (!usados.has(k)) {
                     usados.add(k);
@@ -253,7 +222,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let html = "<h3>🏥 Unidades do SUS em Assis-SP</h3>";
 
-        for (const u of window.unidadesDispensadoras) {
+        const lista = window.unidadesDispensadoras || [];
+
+        for (const u of lista) {
             html += `
                 <div style="margin-bottom:10px;padding:10px;border:1px solid #ccc;">
                     📍 <b>${u.nome}</b><br>
