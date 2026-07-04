@@ -73,16 +73,24 @@ function buscarMedicamentos(textoOCR) {
 
     return medicamentos.filter(m => {
 
-        if (texto.includes(normalizar(m.nome))) return true;
+        const nome = normalizar(m.nome);
 
+        // ✔ MATCH FLEXÍVEL (resolve "losartana" vs "losartana potássica")
+        if (nome.includes(texto) || texto.includes(nome)) {
+            return true;
+        }
+
+        // ✔ sinônimos
         if (m.sinonimos?.some(s =>
+            normalizar(s).includes(texto) ||
             texto.includes(normalizar(s))
-        )) return true;
+        )) {
+            return true;
+        }
 
         return false;
     });
 }
-
 
 // ==========================
 // CONSULTA MANUAL
