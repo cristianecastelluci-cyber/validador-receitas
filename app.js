@@ -130,12 +130,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     // FALA
     // ==========================
-    function falar(texto) {
-        const u = new SpeechSynthesisUtterance(texto);
-        u.lang = "pt-BR";
-        speechSynthesis.speak(u);
-    }
-
+    window.falar = function (texto) {
+    const u = new SpeechSynthesisUtterance(texto);
+    u.lang = "pt-BR";
+    speechSynthesis.speak(u);
+};
     // ==========================
     // PROCESSAMENTO
     // ==========================
