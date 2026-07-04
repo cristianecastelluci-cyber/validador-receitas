@@ -5,93 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FARMASSIS IA</title>
 
-<link rel="stylesheet" href="style.css">
-</head>
-
-<body>
-
-<header>
-    <h1>💙 FARMASSIS IA</h1>
-    <p>Assistente Inteligente do SUS</p>
-</header>
-
-<main>
-
-    <!-- 📷 OCR DA RECEITA -->
-    <section style="margin:20px 0;">
-
-        <input type="file" id="upload" accept="image/*" capture="environment" style="display:none;">
-
-        <button id="btnCamera">📷 TIRAR FOTO DA RECEITA</button>
-
-        <p id="resultado"></p>
-
-    </section>
-
-    <!-- 💊 MEDICAMENTOS -->
-    <section style="margin:20px 0;">
-
-        <h3>💊 Consultar Medicamento</h3>
-
-        <input type="text" id="inputMedicamento" placeholder="Digite o nome do medicamento">
-
-        <button onclick="consultarMedicamento()">🔍 Buscar</button>
-        <button onclick="falarMedicamento()">🎤 Falar</button>
-
-        <div id="resultadoMedicamento"></div>
-
-    </section>
-
-    <!-- 🏥 UNIDADES -->
-    <section style="margin:20px 0;">
-
-        <button onclick="mostrarUnidades()">🏥 Ver unidades do SUS</button>
-
-        <div id="listaUnidades"></div>
-
-    </section>
-
-    <!-- ⚙️ OUTROS BOTÕES -->
-    <section style="margin:20px 0;">
-
-        <button id="voz">🎤 Falar com Assistente</button>
-        <button id="libras">🤟 Libras</button>
-        <button id="sobre">ℹ️ Sobre</button>
-
-    </section>
-
-</main>
-
-<!-- OCR -->
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
-<!-- DADOS -->
-<script src="unidadesDispensadoras.js"></script>
-<script src="medicamentos.js"></script>
-
-<!-- LÓGICA -->
-<script src="app.js"></script>
-
-    <div vw class="enabled">
-    <div vw-access-button class="active"></div>
-    <div vw-plugin-wrapper>
-        <div class="vw-plugin-top-wrapper"></div>
-    </div>
-</div>
-
-<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
-
-<script>
-    new window.VLibras.Widget('https://vlibras.gov.br/app');
-</script>
-
-    <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FARMASSIS IA</title>
-
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -169,24 +82,6 @@
         margin-top: 10px;
         font-size: 18px;
     }
-
-    .ok {
-        color: green;
-        font-weight: bold;
-        font-size: 18px;
-    }
-
-    a {
-        font-size: 18px;
-        color: #0d6efd;
-    }
-
-    #resultado, #resultadoMedicamento, #listaUnidades {
-        margin-top: 15px;
-        font-size: 18px;
-        line-height: 1.5;
-    }
-
 </style>
 </head>
 
@@ -217,7 +112,7 @@
         <input type="text" id="inputMedicamento" placeholder="Digite o nome do remédio">
 
         <button onclick="consultarMedicamento()">CONSULTAR</button>
-        <button id="voz">🎤 FALAR O REMÉDIO</button>
+        <button id="voz">🎤 FALAR</button>
 
         <div id="resultadoMedicamento" class="info"></div>
     </div>
@@ -236,17 +131,12 @@
         <h3>🤟 Acessibilidade</h3>
 
         <button id="libras">ATIVAR LIBRAS</button>
-
-        <p style="font-size:16px; margin-top:10px;">
-            Para pessoas com dificuldade de leitura.
-        </p>
+        <p style="font-size:16px;">Para pessoas com dificuldade de leitura.</p>
     </div>
 
 </div>
 
-</body>
-
-<!-- VLibras oficial -->
+<!-- VLibras -->
 <div vw class="enabled">
     <div vw-access-button class="active"></div>
     <div vw-plugin-wrapper>
@@ -259,14 +149,11 @@
     new window.VLibras.Widget('https://vlibras.gov.br/app');
 </script>
 
-<!-- OCR -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
-<!-- seus scripts -->
 <script src="unidadesDispensadoras.js"></script>
 <script src="medicamentos.js"></script>
 <script src="app.js"></script>
 
-</html>
 </body>
 </html>
