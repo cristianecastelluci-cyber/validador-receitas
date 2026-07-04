@@ -95,7 +95,8 @@ function buscarMedicamentos(textoOCR) {
 
     const texto = normalizar(textoOCR);
 
-    let resultados = [];
+    const resultados = [];
+    const jaAdicionados = new Set(); // 🔥 controle anti-duplicata
 
     medicamentos.forEach(m => {
 
@@ -120,26 +121,29 @@ function buscarMedicamentos(textoOCR) {
             });
         }
 
-        // ✔ adiciona SEM duplicar
-        if (encontrou) {
-            if (!resultados.some(r => r.nome === m.nome)) {
-                resultados.push(m);
-            }
-        } else {
+        // ✔ CORREÇÃO AUTOMÁTICA
+        if (!encontrou) {
             const corrigido = corrigirMedicamento(texto, medicamentos);
+            if (corrigido) {
+                m = corrigido;
+                encontrou = true;
+            }
+        }
 
-            if (
-                corrigido &&
-                !resultados.some(r => r.nome === corrigido.nome)
-            ) {
-                resultados.push(corrigido);
+        // ✔ ADICIONA SEM DUPLICAR (REGRA FINAL)
+        if (encontrou) {
+
+            const chave = normalizar(m.nome);
+
+            if (!jaAdicionados.has(chave)) {
+                jaAdicionados.add(chave);
+                resultados.push(m);
             }
         }
     });
 
     return resultados;
 }
-
 
 // ==========================
 // CORREÇÃO AUTOMÁTICA (OCR RUIM)
