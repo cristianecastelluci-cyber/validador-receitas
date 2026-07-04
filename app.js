@@ -17,6 +17,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
+    // FALA GLOBAL (TTS)
+    // ==========================
+    window.falar = function (texto) {
+        if (!texto) return;
+
+        const u = new SpeechSynthesisUtterance(texto);
+        u.lang = "pt-BR";
+        speechSynthesis.speak(u);
+    };
+
+    // ==========================
     // BOTÃO CÂMERA
     // ==========================
     const btnCamera = document.getElementById("btnCamera");
@@ -53,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // VOZ (FALAR)
+    // VOZ (INPUT POR ÁUDIO)
     // ==========================
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -83,15 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if (btn) btn.click();
         };
     }
-
-    // ==========================
-    // FUNÇÃO GLOBAL DE FALA (IMPORTANTE)
-    // ==========================
-    window.falar = function (texto) {
-        const u = new SpeechSynthesisUtterance(texto);
-        u.lang = "pt-BR";
-        speechSynthesis.speak(u);
-    };
 
     // ==========================
     // BUSCA INTELIGENTE
@@ -134,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // PROCESSAMENTO
+    // PROCESSAMENTO PRINCIPAL
     // ==========================
     function processar(textoOCR) {
 
@@ -171,9 +173,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     <br><br>
 
-                    <!-- BOTÃO OUVIR (CORRETO) -->
-                    <button onclick="window.falar(${JSON.stringify(textoFala)})"
-                        style="margin-top:8px;padding:5px 10px;cursor:pointer;">
+                    <!-- BOTÃO OUVIR PROFISSIONAL -->
+                    <button class="btn-ouvir"
+                        data-text="${encodeURIComponent(textoFala)}"
+                        style="margin-top:8px;padding:6px 10px;cursor:pointer;border-radius:6px;">
                         🔊 Ouvir
                     </button>
 
@@ -181,13 +184,17 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
         }
     }
-    
-document.addEventListener("click", function (e) {
-    if (e.target.classList.contains("btn-ouvir")) {
-        const texto = decodeURIComponent(e.target.dataset.text);
-        window.falar(texto);
-    }
-});
+
+    // ==========================
+    // EVENTO GLOBAL DOS BOTÕES
+    // ==========================
+    document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("btn-ouvir")) {
+            const texto = decodeURIComponent(e.target.dataset.text);
+            window.falar(texto);
+        }
+    });
+
     // ==========================
     // CONSULTA MANUAL
     // ==========================
