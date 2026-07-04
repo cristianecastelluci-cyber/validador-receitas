@@ -103,7 +103,7 @@ function buscarMedicamentos(textoOCR) {
 
         let encontrou = false;
 
-        // ✔ MATCH MAIS FLEXÍVEL (resolve OCR + variações)
+        // ✔ match direto
         if (
             texto.includes(nome) ||
             nome.includes(texto) ||
@@ -112,7 +112,7 @@ function buscarMedicamentos(textoOCR) {
             encontrou = true;
         }
 
-        // ✔ SINÔNIMOS
+        // ✔ sinônimos
         if (!encontrou && m.sinonimos) {
             encontrou = m.sinonimos.some(s => {
                 const sn = normalizar(s);
@@ -120,11 +120,18 @@ function buscarMedicamentos(textoOCR) {
             });
         }
 
+        // ✔ adiciona SEM duplicar
         if (encontrou) {
-            resultados.push(m);
+            if (!resultados.some(r => r.nome === m.nome)) {
+                resultados.push(m);
+            }
         } else {
             const corrigido = corrigirMedicamento(texto, medicamentos);
-            if (corrigido && !resultados.includes(corrigido)) {
+
+            if (
+                corrigido &&
+                !resultados.some(r => r.nome === corrigido.nome)
+            ) {
                 resultados.push(corrigido);
             }
         }
