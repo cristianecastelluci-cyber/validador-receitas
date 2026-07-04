@@ -2,6 +2,7 @@
 // SEGURANÇA GLOBAL
 // ==========================
 window.medicamentos = window.medicamentos || [];
+window.unidadesDispensadoras = window.unidadesDispensadoras || [];
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -17,13 +18,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // CHAVE ANTI DUPLICAÇÃO
+    // CHAVE ÚNICA (ANTI DUPLICAÇÃO REAL)
     // ==========================
     function chave(m) {
         return normalizar(m.nome)
             .split(",")[0]
-            .split(" + ")[0]
-            .split(" ")[0];
+            .split("+")[0]
+            .trim();
     }
 
     // ==========================
@@ -91,13 +92,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnLibras) {
         btnLibras.onclick = () => {
             alert("🤟 VLibras ativado");
-            const btn = document.querySelector("[vw-access-button]");
-            if (btn) btn.click();
         };
     }
 
     // ==========================
-    // BUSCA SEGURA
+    // BUSCA INTELIGENTE (SEM DUPLICAÇÃO REAL)
     // ==========================
     function buscar(textoOCR) {
 
@@ -116,7 +115,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 nome.includes(t) ||
                 t.includes(nome.split(" ")[0]);
 
-            // sinônimos (amoxilina etc)
+            // ==========================
+            // SINÔNIMOS
+            // ==========================
             if (!ok && m.sinonimos) {
                 for (const s of m.sinonimos) {
                     const sn = normalizar(s);
@@ -127,6 +128,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
+            // ==========================
+            // ANTI DUPLICAÇÃO REAL (LOSARTANA etc)
+            // ==========================
             if (ok) {
 
                 const k = chave(m);
@@ -218,9 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let html = "<h3>🏥 Unidades do SUS em Assis-SP</h3>";
 
-        const lista = window.unidadesDispensadoras || [];
-
-        for (const u of lista) {
+        for (const u of window.unidadesDispensadoras) {
             html += `
                 <div style="margin-bottom:10px;padding:10px;border:1px solid #ccc;">
                     📍 <b>${u.nome}</b><br>
